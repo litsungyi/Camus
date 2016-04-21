@@ -7,7 +7,7 @@ namespace Camus.Localization
     // Ref: ISO-639 Language Codes https://zh.wikipedia.org/wiki/ISO_639-1%E4%BB%A3%E7%A0%81%E8%A1%A8
     public enum Language
     {
-		None,
+        None,
         TraditionChinese, // 繁體中文
         SimplifiedChinese, // 簡體中文
         English, // 英語
@@ -24,14 +24,14 @@ namespace Camus.Localization
     [Serializable]
     public partial class LocalizationManager
     {
-		private static readonly string InvalidValue = "LOCAL_KEY_NOT_FOUND";
+        private static readonly string InvalidValue = "LOCAL_KEY_NOT_FOUND";
         public GameObject StringSettings = null;
 
-		private IDictionary<Language, IDictionary<LocalKey, string>> StringDatas = new Dictionary<Language, IDictionary<LocalKey, string>> ();
-		private IDictionary<LocalKey, string> CurrentStringDatas = new Dictionary<LocalKey, string>();
-		private Language currentLanguage = Language.None;
-		
-		public Language CurrentLanguage
+        private IDictionary<Language, IDictionary<LocalKey, string>> StringDatas = new Dictionary<Language, IDictionary<LocalKey, string>> ();
+        private IDictionary<LocalKey, string> CurrentStringDatas = new Dictionary<LocalKey, string>();
+        private Language currentLanguage = Language.None;
+
+        public Language CurrentLanguage
         {
              get
              {
@@ -58,8 +58,8 @@ namespace Camus.Localization
 
         public LocalizationManager()
         {
-			StringDatas = new Dictionary<Language, IDictionary<LocalKey, string>> ();
-			Initialize();
+            StringDatas = new Dictionary<Language, IDictionary<LocalKey, string>> ();
+            Initialize();
 
             if ( !StringDatas.ContainsKey( currentLanguage ) )
             {
@@ -70,23 +70,23 @@ namespace Camus.Localization
             CurrentStringDatas = StringDatas[ currentLanguage ];
         }
 
-		partial void Initialize();
+        partial void Initialize();
 
-		internal string GetLocalString( LocalKey localKey )
+        internal string GetLocalString( LocalKey localKey )
         {
-			if ( localKey == null )
-			{
-				Debug.LogWarning( string.Format( "[LocalizationManager] LocalKey is null! (Language = {0})", currentLanguage.ToString() ) );
-				return InvalidValue;
-			}
-
-			if ( null == CurrentStringDatas || !CurrentStringDatas.ContainsKey( localKey ) )
+            if ( localKey == null )
             {
-				Debug.LogWarning( string.Format( "[LocalizationManager] LocalKey not found! (Language = {0}, LocalKey = {1})", currentLanguage.ToString(), localKey.Key ) );
-				return InvalidValue;
+                Debug.LogWarning( string.Format( "[LocalizationManager] LocalKey is null! (Language = {0})", currentLanguage.ToString() ) );
+                return InvalidValue;
             }
 
-			return CurrentStringDatas[ localKey ];
+            if ( null == CurrentStringDatas || !CurrentStringDatas.ContainsKey( localKey ) )
+            {
+                Debug.LogWarning( string.Format( "[LocalizationManager] LocalKey not found! (Language = {0}, LocalKey = {1})", currentLanguage.ToString(), localKey.Key ) );
+                return InvalidValue;
+            }
+
+            return CurrentStringDatas[ localKey ];
         }
     }
 }

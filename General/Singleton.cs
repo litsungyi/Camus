@@ -4,7 +4,7 @@ namespace Camus.General
 {
     public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
     {
-		private static readonly string NodeName = "(Singletons)";
+        private static readonly string NodeName = "(Singletons)";
         private static object instanceLock = new object();
         private static T instance = default( T );
         private static bool applicationIsQuitting = false;
@@ -38,16 +38,16 @@ namespace Camus.General
                         return instance;
                     }
 
-					var root = GameObject.Find( NodeName );
-					if ( root == null )
-					{
-						Debug.Log( "[Singleton] First singleton created!" );
-						root = new GameObject( NodeName );
-						DontDestroyOnLoad( root );
-					}
-					
-					Debug.Log( "[Singleton] Singleton " + typeof( T ) + " is created." );
-					instance = root.AddComponent<T>();
+                    var root = GameObject.Find( NodeName );
+                    if ( root == null )
+                    {
+                        Debug.Log( "[Singleton] First singleton created!" );
+                        root = new GameObject( NodeName );
+                        DontDestroyOnLoad( root );
+                    }
+
+                    Debug.Log( "[Singleton] Singleton " + typeof( T ) + " is created." );
+                    instance = root.AddComponent<T>();
                     return instance;
                 }
             }
