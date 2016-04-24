@@ -25,10 +25,9 @@ namespace Camus.Localization
     public partial class LocalizationManager
     {
         private static readonly string InvalidValue = "LOCAL_KEY_NOT_FOUND";
-        public GameObject StringSettings = null;
 
-        private IDictionary<Language, IDictionary<LocalKey, string>> StringDatas = new Dictionary<Language, IDictionary<LocalKey, string>> ();
-        private IDictionary<LocalKey, string> CurrentStringDatas = new Dictionary<LocalKey, string>();
+        private IDictionary<Language, IDictionary<string, string>> StringDatas = new Dictionary<Language, IDictionary<string, string>>();
+        private IDictionary<string, string> CurrentStringDatas = new Dictionary<string, string>();
         private Language currentLanguage = Language.None;
 
         public Language CurrentLanguage
@@ -58,7 +57,7 @@ namespace Camus.Localization
 
         public LocalizationManager()
         {
-            StringDatas = new Dictionary<Language, IDictionary<LocalKey, string>> ();
+            StringDatas = new Dictionary<Language, IDictionary<string, string>> ();
             Initialize();
 
             if ( !StringDatas.ContainsKey( currentLanguage ) )
@@ -70,8 +69,18 @@ namespace Camus.Localization
             CurrentStringDatas = StringDatas[ currentLanguage ];
         }
 
+        /// <summary>
+        /// Initialize LocalizationManager, use to initialize LocalizationManager.StringDatas and LocalizationManager.currentLanguage
+        /// NOTE: This is a partial method, add a partial class LocalizationManager with this partial nethod implement.
+        /// </summary>
         partial void Initialize();
 
+        /// <summary>
+        /// Get localization string from a LocalKey,
+        /// if localKey is null or localKey cannot found in CurrentStringDatas, return null
+        /// otherwise return a localization of localKey (equals to localKey.Value)
+        /// NOTE: Don't (and can't) use this method directly, use localKey.Value instead
+        /// </summary>
         internal string GetLocalString( LocalKey localKey )
         {
             if ( localKey == null )
@@ -80,13 +89,13 @@ namespace Camus.Localization
                 return InvalidValue;
             }
 
-            if ( null == CurrentStringDatas || !CurrentStringDatas.ContainsKey( localKey ) )
+            if ( null == CurrentStringDatas || !CurrentStringDatas.ContainsKey( localKey.Key ) )
             {
                 Debug.LogWarning( string.Format( "[LocalizationManager] LocalKey not found! (Language = {0}, LocalKey = {1})", currentLanguage.ToString(), localKey.Key ) );
                 return InvalidValue;
             }
 
-            return CurrentStringDatas[ localKey ];
+            return CurrentStringDatas[ localKey.Key ];
         }
     }
 }

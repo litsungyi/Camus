@@ -1,6 +1,9 @@
+using System;
+
 namespace Camus.Localization
 {
     // Localization Key
+    [Serializable]
     public class LocalKey
     {
         public LocalKey( string key )
@@ -22,6 +25,7 @@ namespace Camus.Localization
             }
         }
 
+        #region Equals
         public override string ToString()
         {
             return Key;
@@ -29,20 +33,21 @@ namespace Camus.Localization
 
         public override int GetHashCode()
         {
-            return Key.GetHashCode ();
+            return Key.GetHashCode();
         }
 
-        public override bool Equals ( object obj )
+        public override bool Equals( object obj )
         {
-            return Equals(obj as LocalKey);
+            return Equals( obj as LocalKey );
         }
 
-        public bool Equals ( LocalKey obj )
+        public bool Equals( LocalKey obj )
         {
-            return obj != null && obj.GetHashCode () == this.GetHashCode ();
+            return obj != null && obj.GetHashCode() == this.GetHashCode();
         }
+        #endregion // Equals
 
-        public static implicit operator string ( LocalKey localKey )
+        public static implicit operator string( LocalKey localKey )
         {
             return App.Instance.Localization.GetLocalString( localKey );
         }
