@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Camus.Localization
@@ -29,6 +30,14 @@ namespace Camus.Localization
         private IDictionary<Language, IDictionary<string, string>> StringDatas = new Dictionary<Language, IDictionary<string, string>>();
         private IDictionary<string, string> CurrentStringDatas = new Dictionary<string, string>();
         private Language currentLanguage = Language.None;
+
+        public IList<Language> AvailableLanguages
+        {
+            get
+            {
+                return StringDatas.Keys.ToList();
+            }
+        }
 
         public Language CurrentLanguage
         {
