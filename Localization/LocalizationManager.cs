@@ -26,9 +26,11 @@ namespace Camus.Localization
     public partial class LocalizationManager
     {
         private static readonly string InvalidValue = "LOCAL_KEY_NOT_FOUND";
+        private static readonly LocalKey InvalidLocalKey = new LocalKey( string.Empty );
 
         private IDictionary<Language, IDictionary<string, string>> StringDatas = new Dictionary<Language, IDictionary<string, string>>();
         private IDictionary<string, string> CurrentStringDatas = new Dictionary<string, string>();
+        private IDictionary<string, LocalKey> KeyDatas = new Dictionary<string, LocalKey>();
         private Language currentLanguage = Language.None;
 
         public IList<Language> AvailableLanguages
@@ -61,6 +63,11 @@ namespace Camus.Localization
 
                 CurrentStringDatas = StringDatas[ value ];
                 currentLanguage = value;
+
+                foreach ( var item in KeyDatas.Values )
+                {
+                    item.IsDirty = true;
+                }
              }
         }
 
@@ -83,6 +90,24 @@ namespace Camus.Localization
         /// NOTE: This is a partial method, add a partial class LocalizationManager with this partial nethod implement.
         /// </summary>
         partial void Initialize();
+
+        internal LocalKey GetLocalKey( string key )
+        {
+            if ( string.IsNullOrEmpty( key ) )
+            {
+                Debug.LogWarning( "[LocalizationManager] key is null!" );
+                return InvalidLocalKey;
+            }
+
+            if ( null == KeyDatas || !KeyDatas.ContainsKey( key ) )
+            {
+                return KeyDatas[ key ];
+            }
+
+            var localKey = new LocalKey( key );
+            KeyDatas.Add( key, localKey );
+            return localKey;
+        }
 
         /// <summary>
         /// Get localization string from a LocalKey,

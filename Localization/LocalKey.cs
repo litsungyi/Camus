@@ -4,11 +4,17 @@ namespace Camus.Localization
 {
     // Localization Key
     [Serializable]
-    public class LocalKey
+    public sealed class LocalKey
     {
-        public LocalKey( string key )
+        internal LocalKey( string key )
         {
             Key = key;
+            IsDirty = true;
+        }
+
+        public static LocalKey Create( string key )
+        {
+            return App.Instance.Localization.GetLocalKey( key );
         }
 
         public string Key
@@ -21,8 +27,26 @@ namespace Camus.Localization
         {
             get
             {
-                return App.Instance.Localization.GetLocalString( this );
+                if ( IsDirty )
+                {
+                    CatchedValue = App.Instance.Localization.GetLocalString( this );
+                    IsDirty = false;
+                }
+
+                return CatchedValue;
             }
+        }
+
+        public bool IsDirty
+        {
+            get;
+            internal set;
+        }
+
+        private string CatchedValue
+        {
+            get;
+            set;
         }
 
         #region Equals
