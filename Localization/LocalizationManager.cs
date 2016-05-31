@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Zenject;
 
 namespace Camus.Localization
 {
@@ -22,9 +23,17 @@ namespace Camus.Localization
         Arabic, // 阿拉伯語
     }
 
+	public delegate void InitializeDelegate(); 
+
     [Serializable]
-    public partial class LocalizationManager
+    public partial class LocalizationManager : IInitializable
     {
+		private class Installer()
+		{
+			App.Instance
+		}
+
+		public event InitializeDelegate OnInitialize = delegate {}
         private static readonly string InvalidValue = "LOCAL_KEY_NOT_FOUND";
         private static readonly LocalKey InvalidLocalKey = new LocalKey( string.Empty );
 
@@ -74,7 +83,7 @@ namespace Camus.Localization
         public LocalizationManager()
         {
             StringDatas = new Dictionary<Language, IDictionary<string, string>> ();
-            Initialize();
+			OnInitialize ();
 
             if ( !StringDatas.ContainsKey( currentLanguage ) )
             {
@@ -84,12 +93,6 @@ namespace Camus.Localization
 
             CurrentStringDatas = StringDatas[ currentLanguage ];
         }
-
-        /// <summary>
-        /// Initialize LocalizationManager, use to initialize LocalizationManager.StringDatas and LocalizationManager.currentLanguage
-        /// NOTE: This is a partial method, add a partial class LocalizationManager with this partial nethod implement.
-        /// </summary>
-        partial void Initialize();
 
         internal LocalKey GetLocalKey( string key )
         {
