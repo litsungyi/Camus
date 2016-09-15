@@ -1,16 +1,15 @@
 using System;
 using Camus.General;
 using Camus.Localization;
-using Zenject;
 
 // NOTE: Use global partial singleton for Game extends.
-
+using Zenject;
 
 [Serializable]
 public partial class App : Singleton<App>
 {
-	[PostInject]
-    public LocalizationManager Localization
+	[Inject]
+	public ILacalization Localization
 	{
 		get;
 		private set;

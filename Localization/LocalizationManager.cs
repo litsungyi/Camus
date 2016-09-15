@@ -6,34 +6,9 @@ using Zenject;
 
 namespace Camus.Localization
 {
-    // Ref: ISO-639 Language Codes https://zh.wikipedia.org/wiki/ISO_639-1%E4%BB%A3%E7%A0%81%E8%A1%A8
-    public enum Language
-    {
-        None,
-        TraditionChinese, // 繁體中文
-        SimplifiedChinese, // 簡體中文
-        English, // 英語
-        Japanese, // 日語
-        Portuguese, // 葡萄牙語
-        Spanish, // 西班牙語
-        French, // 法語
-        German, // 德語
-        Korean, // 韓語
-        Russian, // 俄語
-        Arabic, // 阿拉伯語
-    }
-
-	public delegate void InitializeDelegate(); 
-
     [Serializable]
-    public partial class LocalizationManager : IInitializable
-    {
-		private class Installer()
-		{
-			App.Instance
-		}
-
-		public event InitializeDelegate OnInitialize = delegate {}
+	public partial class LocalizationManager : ILacalization
+	{
         private static readonly string InvalidValue = "LOCAL_KEY_NOT_FOUND";
         private static readonly LocalKey InvalidLocalKey = new LocalKey( string.Empty );
 
