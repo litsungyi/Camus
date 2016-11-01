@@ -8,10 +8,10 @@ using Zenject;
 [Serializable]
 public partial class App : Singleton<App>
 {
-	[Inject]
+    [Inject]
 	public ILacalization Localization
-	{
-		get;
-		private set;
+    {
+        get;
+        set;
     }
 }

@@ -55,10 +55,12 @@ namespace Camus.Localization
              }
         }
 
+        partial void Initialize();
+
         public LocalizationManager()
         {
             StringDatas = new Dictionary<Language, IDictionary<string, string>> ();
-			OnInitialize ();
+            Initialize();
 
             if ( !StringDatas.ContainsKey( currentLanguage ) )
             {
@@ -69,7 +71,7 @@ namespace Camus.Localization
             CurrentStringDatas = StringDatas[ currentLanguage ];
         }
 
-        internal LocalKey GetLocalKey( string key )
+		public LocalKey GetLocalKey( string key )
         {
             if ( string.IsNullOrEmpty( key ) )
             {
@@ -93,7 +95,7 @@ namespace Camus.Localization
         /// otherwise return a localization of localKey (equals to localKey.Value)
         /// NOTE: Don't (and can't) use this method directly, use localKey.Value instead
         /// </summary>
-        internal string GetLocalString( LocalKey localKey )
+        public string GetLocalString( LocalKey localKey )
         {
             if ( localKey == null )
             {
