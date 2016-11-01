@@ -7,7 +7,7 @@ using Zenject;
 namespace Camus.Localization
 {
     [Serializable]
-	public partial class LocalizationManager : ILacalization
+	public partial class LocalizationManager : ILocalization
 	{
         private static readonly string InvalidValue = "LOCAL_KEY_NOT_FOUND";
         private static readonly LocalKey InvalidLocalKey = new LocalKey( string.Empty );

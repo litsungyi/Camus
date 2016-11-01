@@ -29,7 +29,7 @@ namespace Camus.Localization
             {
                 if ( IsDirty )
                 {
-                    CatchedValue = App.Instance.Localization.GetLocalString( this );
+					CatchedValue = App.Instance.Localization.GetLocalString( this );
                     IsDirty = false;
                 }
 

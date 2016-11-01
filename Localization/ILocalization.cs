@@ -19,7 +19,7 @@ namespace Camus.Localization
 		Arabic, // 阿拉伯語
 	}
 
-	public interface ILacalization
+	public interface ILocalization
 	{
 		LocalKey GetLocalKey (string key);
 		string GetLocalString (LocalKey localKey);
