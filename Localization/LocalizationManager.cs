@@ -73,13 +73,13 @@ namespace Camus.Localization
 
 		public LocalKey GetLocalKey( string key )
         {
-            if ( string.IsNullOrEmpty( key ) )
+			if ( string.IsNullOrEmpty( key ) || null == KeyDatas )
             {
                 Debug.LogWarning( "[LocalizationManager] key is null!" );
                 return InvalidLocalKey;
             }
 
-            if ( null == KeyDatas || !KeyDatas.ContainsKey( key ) )
+            if ( KeyDatas.ContainsKey( key ) )
             {
                 return KeyDatas[ key ];
             }

@@ -5,21 +5,21 @@ using System.Collections;
 
 namespace Camus.Localization
 {
-	[Serializable]
     public class LocalStringUpdater : MonoBehaviour
     {
-        public Text Text;
+		[SerializeField] private Text Text;
+		[SerializeField] private string Key = string.Empty;
 
-        public string Key = string.Empty;
+		private LocalKey localKey;
 
-        private void Awake()
+        private void Start()
         {
             if ( Text == null || string.IsNullOrEmpty( Key ) )
             {
                 return;
             }
 
-            var localKey = new LocalKey( Key );
+            localKey = LocalKey.Create( Key );
             Text.text = localKey.Value;
         }
 
@@ -30,7 +30,6 @@ namespace Camus.Localization
                 return;
             }
 
-            var localKey = new LocalKey( Key );
             Text.text = localKey.Value;
         }
     }
