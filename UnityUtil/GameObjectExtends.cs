@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 namespace Camus
 {
@@ -17,7 +16,7 @@ namespace Camus
 		}
 
 		public static T AppendComponent<T>(this GameObject parent)
-			where T : UnityEngine.Component
+			where T : Component
 		{
 			Debug.Assert(parent != null, "Parent is null!");
 

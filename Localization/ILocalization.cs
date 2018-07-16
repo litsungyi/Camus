@@ -21,8 +21,8 @@ namespace Camus.Localization
 
 	public interface ILocalization
 	{
-		LocalKey GetLocalKey (string key);
-		string GetLocalString (LocalKey localKey);
+		LocalKey GetLocalKey(string key);
+		string GetLocalString(LocalKey localKey);
 
 		Language CurrentLanguage
 		{

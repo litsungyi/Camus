@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using Zenject;
 
 namespace Camus.Localization
 {
@@ -25,7 +24,7 @@ namespace Camus.Localization
             }
         }
 
-        public Language CurrentLanguage
+        Language ILocalization.CurrentLanguage
         {
              get
              {
@@ -71,7 +70,7 @@ namespace Camus.Localization
             CurrentStringDatas = StringDatas[ currentLanguage ];
         }
 
-		public LocalKey GetLocalKey( string key )
+        LocalKey ILocalization.GetLocalKey( string key )
         {
 			if ( string.IsNullOrEmpty( key ) || null == KeyDatas )
             {
@@ -95,7 +94,7 @@ namespace Camus.Localization
         /// otherwise return a localization of localKey (equals to localKey.Value)
         /// NOTE: Don't (and can't) use this method directly, use localKey.Value instead
         /// </summary>
-        public string GetLocalString( LocalKey localKey )
+        string ILocalization.GetLocalString( LocalKey localKey )
         {
             if ( localKey == null )
             {
