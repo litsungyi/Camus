@@ -5,17 +5,16 @@ namespace Camus.Dragables
 {
     public class DragTarget : MonoBehaviour, IDropHandler
     {
-        private GameObject item;
+        public Transform dropPoint;
+        public bool canDrop;
 
         #region IDropHandler
 
         void IDropHandler.OnDrop(PointerEventData eventData)
         {
-            Debug.Log("OnDrop " + name);
-            
-            if(item == null)
+            if(canDrop)
             {
-                DragSource.dragItem.transform.SetParent(transform);
+                DragController.OnDrop(eventData.pointerDrag, this);
             }
         }
 
