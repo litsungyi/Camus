@@ -9,7 +9,7 @@ namespace Camus.Dragables
 
         public void OnBeginDrag(PointerEventData eventData)
         {
-            DragController.BeginDrag(this);
+            DragManager.BeginDrag(this);
             GetComponent<CanvasGroup>().blocksRaycasts = false;
         }
 
@@ -26,9 +26,9 @@ namespace Camus.Dragables
 
         #region IEndDragHandler
 
-       public void OnEndDrag(PointerEventData eventData)
+        public void OnEndDrag(PointerEventData eventData)
         {
-            DragController.EndDrag(this);
+            DragManager.EndDrag(this);
             GetComponent<CanvasGroup>().blocksRaycasts = true;
         }
 

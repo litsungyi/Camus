@@ -12,9 +12,9 @@ namespace Camus.Dragables
 
         void IDropHandler.OnDrop(PointerEventData eventData)
         {
-            if(canDrop)
+            if (canDrop)
             {
-                DragController.OnDrop(eventData.pointerDrag, this);
+                DragManager.OnDrop(eventData.pointerDrag, this);
             }
         }
 

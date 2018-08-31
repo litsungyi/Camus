@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Camus.Dragables
 {
-    public class DragController
+    public static class DragManager
     {
         private class DragInfo
         {
@@ -11,7 +11,7 @@ namespace Camus.Dragables
             public Vector3 originPosition;
         }
 
-        private static Dictionary<GameObject, DragInfo> dragingObjects = new Dictionary<GameObject, DragInfo>();
+        private static readonly Dictionary<GameObject, DragInfo> dragingObjects = new Dictionary<GameObject, DragInfo>();
 
         public static void BeginDrag(DragSource source)
         {
@@ -34,11 +34,11 @@ namespace Camus.Dragables
         public static void EndDrag(DragSource source)
         {
             DragInfo info;
-            if(dragingObjects.TryGetValue(source.gameObject, out info))
+            if (dragingObjects.TryGetValue(source.gameObject, out info))
             {
                 source.transform.position = info.originPosition;
                 dragingObjects.Remove(source.gameObject);
             }
         }
-	}
+    }
 }
