@@ -1,4 +1,4 @@
-﻿namespace Camus.Updates
+﻿namespace Camus.Updatables
 {
     public interface IUpdatable
     {
