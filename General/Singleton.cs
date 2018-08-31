@@ -6,47 +6,47 @@ namespace Camus.General
     {
         private static readonly string NodeName = "(Singletons)";
         private static object instanceLock = new object();
-        private static T instance = default( T );
+        private static T instance = default(T);
         private static bool applicationIsQuitting = false;
 
         public static T Instance
         {
             get
             {
-                if ( applicationIsQuitting )
+                if (applicationIsQuitting)
                 {
-                    Debug.LogWarning( "[Singleton] Instance '" + typeof( T ) + "' already destroyed on application quit." );
-                    return default( T );
+                    Debug.LogWarning("[Singleton] Instance '" + typeof(T) + "' already destroyed on application quit.");
+                    return default(T);
                 }
 
-                lock ( instanceLock )
+                lock (instanceLock)
                 {
-                    if ( null != instance )
+                    if (null != instance)
                     {
                         return instance;
                     }
 
-                    instance = ( T ) FindObjectOfType( typeof( T ) );
-                    if ( FindObjectsOfType( typeof( T ) ).Length > 1 )
+                    instance = (T) FindObjectOfType(typeof(T));
+                    if (FindObjectsOfType(typeof(T)).Length > 1)
                     {
-                        Debug.LogError( "[Singleton] More than 1 singleton!" );
+                        Debug.LogError("[Singleton] More than 1 singleton!");
                         return instance;
                     }
 
-                    if ( null != instance )
+                    if (null != instance)
                     {
                         return instance;
                     }
 
-                    var root = GameObject.Find( NodeName );
-                    if ( root == null )
+                    var root = GameObject.Find(NodeName);
+                    if (root == null)
                     {
-                        Debug.Log( "[Singleton] First singleton created!" );
-                        root = new GameObject( NodeName );
-                        DontDestroyOnLoad( root );
+                        Debug.Log("[Singleton] First singleton created!");
+                        root = new GameObject(NodeName);
+                        DontDestroyOnLoad(root);
                     }
 
-                    Debug.Log( "[Singleton] Singleton " + typeof( T ) + " is created." );
+                    Debug.Log("[Singleton] Singleton " + typeof(T) + " is created.");
                     instance = root.AddComponent<T>();
                     return instance;
                 }

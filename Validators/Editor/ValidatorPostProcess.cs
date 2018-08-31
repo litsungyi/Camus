@@ -27,7 +27,7 @@ namespace Camus.Validators
         #endregion
 
         #region Check
-      
+
         private static bool CheckAllEnabledScenes()
         {
             var checkPassed = true;
@@ -57,7 +57,7 @@ namespace Camus.Validators
             {
                 Debug.Log(string.Format("[!] Start checking Prefab: {0}", prefab.name));
                 var gameObjects = GetAllGameObjectsFromPrefab(prefab);
-                if(!CheckGameObjects(gameObjects))
+                if (!CheckGameObjects(gameObjects))
                 {
                     checkPassed = false;
                     Debug.LogError(string.Format("[*] Null Check Failed! Prefab: {0}", prefab.name));
@@ -96,7 +96,7 @@ namespace Camus.Validators
             var fieldInfos = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             foreach (var fieldInfo in fieldInfos)
             {
-                var fieldValue = fieldInfo.GetValue(component);            
+                var fieldValue = fieldInfo.GetValue(component);
                 if (IsMissingReference(serialObject, fieldInfo, fieldValue))
                 {
                     Debug.LogError(string.Format("    [Miss] {0} in {1}", fieldInfo.Name, component.gameObject.name));
