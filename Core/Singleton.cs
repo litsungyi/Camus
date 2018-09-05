@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Camus.General
+namespace Camus.Core
 {
     public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
     {
