@@ -9,7 +9,6 @@ namespace Camus.Updatables
         private HashSet<IFixedUpdatable> fixedUpdateEntities = new HashSet<IFixedUpdatable>();
         private HashSet<ILateUpdatable> lateUpdateEntities = new HashSet<ILateUpdatable>();
 
-        // NOTE: Only allow create UpdateManager from Camus
         internal UpdateManager()
         {
         }
