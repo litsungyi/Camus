@@ -1,4 +1,5 @@
 ﻿using System;
+using Camus.Utilities;
 using UnityEngine;
 
 namespace Camus.Timers
@@ -71,8 +72,8 @@ namespace Camus.Timers
         #region Fields
 
         [SerializeField] private TimerSetting setting;
-        [SerializeField] private TimerState state;
-        [SerializeField] private TimerStaus status = TimerStaus.None;
+        [ReadOnly, SerializeField] private TimerState state;
+        [ReadOnly, SerializeField] private TimerStaus status = TimerStaus.None;
         private Action onTimer = null;
 
         public TimerStaus Status

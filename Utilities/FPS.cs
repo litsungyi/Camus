@@ -7,7 +7,7 @@ namespace Camus.Utilities
     {
         private static readonly int MaxCount = 100;
 
-        [SerializeField] private float frames = 0f;
+        [ReadOnly, SerializeField] private float frames = 0f;
         private Queue<float> deltas = new Queue<float>();
 
         private void Update()
