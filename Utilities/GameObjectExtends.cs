@@ -1,18 +1,16 @@
 ﻿using UnityEngine;
 
-namespace Camus
+namespace Camus.Utilities
 {
     public static class GameObjectExtends
     {
         public static T Append<T>(this GameObject parent, T prefab)
-            where T : UnityEngine.Object
+            where T : Object
         {
             Debug.Assert(parent != null, "Parent is null!");
             Debug.Assert(prefab != null, "Prefab is null!");
 
-            var instance = GameObject.Instantiate<T>(prefab) as GameObject;
-            instance.transform.parent = parent.transform;
-            return instance as T;
+            return Object.Instantiate<T>(prefab, parent.transform);
         }
 
         public static T AppendComponent<T>(this GameObject parent)
@@ -20,8 +18,7 @@ namespace Camus
         {
             Debug.Assert(parent != null, "Parent is null!");
 
-            var instance = parent.AddComponent<T>();
-            return instance;
+            return parent.AddComponent<T>();
         }
     }
 }
