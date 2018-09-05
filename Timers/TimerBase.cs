@@ -3,80 +3,205 @@ using UnityEngine;
 
 namespace Camus.Timers
 {
-    [Serializable]
-    public class TimerBase
+    public class TimerBase : MonoBehaviour
     {
-        [Header("Display")]
-        public string name;
-        private MonoBehaviour host;
+        #region Inner Classes
 
-        [Header("Timer Setting")]
-        public float interval;
-        public bool loop;
-        public float maxCount;
-
-        [Header("Timer Setting")]
-        [SerializeField] protected float duration;
-        [SerializeField] protected float count;
-
-        internal void Init(MonoBehaviour host)
+        [Serializable]
+        public class TimerSetting
         {
-            this.host = host;
+            public float interval = 0f;
+            public bool loop = false;
+            public int maxCount = 0;
+
+            public bool IsEnd(int count)
+            {
+                return !loop && count >= maxCount;
+            }
         }
 
-        internal void StartTimer()
+        [Serializable]
+        private class TimerState
+        {
+            [SerializeField] private float duration = 0f;
+            [SerializeField] private int count = 0;
+
+            public int Count
+            {
+                get
+                {
+                    return count;
+                }
+            }
+
+            public bool Tick(float delta, float interval)
+            {
+                duration += delta;
+                if (duration >= interval)
+                {
+                    duration -= interval;
+                    ++count;
+                    return true;
+                }
+
+                return false;
+            }
+
+            public void Reset(float duration = 0, int count = 0)
+            {
+                this.duration = duration;
+                this.count = count;
+            }
+        }
+
+        #endregion
+
+        #region Enum
+
+        public enum TimerStaus
+        {
+            None,
+            Started,
+            Paused,
+            Stopped,
+        }
+
+        #endregion
+
+        #region Fields
+
+        [SerializeField] private TimerSetting setting;
+        [SerializeField] private TimerState state;
+        [SerializeField] private TimerStaus status = TimerStaus.None;
+        private Action onTimer = null;
+
+        public TimerStaus Status
+        {
+            get
+            {
+                return status;
+            }
+
+            private set
+            {
+                status = value;
+            }
+        }
+
+        #endregion
+
+        #region UpdateSetting
+
+        public void UpdateSetting(TimerSetting setting)
+        {
+            this.setting = setting;
+        }
+
+        public void UpdateSetting(TimerSetting setting, Action onTimer)
+        {
+            UpdateSetting(setting);
+            this.onTimer = onTimer;
+        }
+
+        #endregion
+
+        #region Timer Controll
+
+        public void StartTimer(Action onTimer = null)
+        {
+            StartTimerWithDelta(0, onTimer);
+        }
+
+        public void StartTimerWithDelta(float delta, Action onTimer = null)
+        {
+            this.onTimer = onTimer;
+            RestartTimer(delta);
+        }
+
+        public void RestartTimer(float delta = 0)
         {
             SetEnable(true);
-            ResetTimer();
+            state.Reset(delta);
+            Status = TimerStaus.Started;
         }
 
-        internal void StopTimer()
+        public void StopTimer()
         {
             SetEnable(false);
-            ResetTimer();
+            state.Reset();
+            Status = TimerStaus.Stopped;
         }
 
-        internal void PauseTimer()
+        public void PauseTimer()
         {
             SetEnable(false);
+            Status = TimerStaus.Paused;
         }
 
-        internal void ResumeTimer()
+        public void ResumeTimer()
         {
-            if (count >= maxCount && !loop)
+            if (setting.IsEnd(state.Count))
             {
                 return;
             }
 
             SetEnable(true);
+            Status = TimerStaus.Started;
         }
 
-        internal void ResetTimer()
+        #endregion
+
+        #region Internal Function
+
+        internal void TickAndTrigTimer(float delta)
         {
-            duration = 0;
-            count = 0;
+            if (Status == TimerStaus.None)
+            {
+                SetEnable(false);
+                return;
+            }
+
+            if (Tick(delta))
+            {
+                TrigTimer();
+            }
         }
 
         internal bool Tick(float delta)
         {
-            duration += delta;
-            if (duration < interval)
+            if (!state.Tick(delta, setting.interval))
             {
                 return false;
             }
 
-            duration -= interval;
-            if (++count >= maxCount && !loop)
+            if (setting.IsEnd(state.Count))
             {
-                SetEnable(false);
+                StopTimer();
             }
 
             return true;
         }
 
-        private void SetEnable(bool enabled)
+        internal void TrigTimer()
         {
-            host.enabled = enabled;
+            onTimer?.Invoke();
         }
+
+        private void SetEnable(bool enable)
+        {
+            this.enabled = enable;
+        }
+
+        #endregion
+
+        #region Validation
+
+        private void OnValidate()
+        {
+            Debug.Assert(setting.interval > 0, "Interval must > 0");
+            Debug.Assert(setting.maxCount >= 0, "Max count must >= 0");
+        }
+
+        #endregion
     }
 }
