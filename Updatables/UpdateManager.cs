@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Camus.Updatables
@@ -9,50 +10,79 @@ namespace Camus.Updatables
         private HashSet<IFixedUpdatable> fixedUpdateEntities = new HashSet<IFixedUpdatable>();
         private HashSet<ILateUpdatable> lateUpdateEntities = new HashSet<ILateUpdatable>();
 
-        internal UpdateManager()
-        {
-        }
+        private IList<MonoBehaviour> registerList = new List<MonoBehaviour>();
+        private IList<MonoBehaviour> unregisterList = new List<MonoBehaviour>();
 
         public void Register(MonoBehaviour entity)
         {
-            var updatable = entity as IUpdatable;
-            if (updatable != null)
+            registerList.Add(entity);
+        }
+
+        private void DoRegister()
+        {
+            if (!registerList.Any())
             {
-                updateEntities.Add(updatable);
+                return;
             }
 
-            var fixedUpdatable = entity as IFixedUpdatable;
-            if (fixedUpdatable != null)
+            foreach (var entity in registerList)
             {
-                fixedUpdateEntities.Add(fixedUpdatable);
+                var updatable = entity as IUpdatable;
+                if (updatable != null)
+                {
+                    updateEntities.Add(updatable);
+                }
+
+                var fixedUpdatable = entity as IFixedUpdatable;
+                if (fixedUpdatable != null)
+                {
+                    fixedUpdateEntities.Add(fixedUpdatable);
+                }
+
+                var lateUpdatable = entity as ILateUpdatable;
+                if (lateUpdatable != null)
+                {
+                    lateUpdateEntities.Add(lateUpdatable);
+                }
             }
 
-            var lateUpdatable = entity as ILateUpdatable;
-            if (lateUpdatable != null)
-            {
-                lateUpdateEntities.Add(lateUpdatable);
-            }
+            registerList.Clear();
         }
 
         public void Unregister(MonoBehaviour entity)
         {
-            var updatable = entity as IUpdatable;
-            if (updatable != null)
+            unregisterList.Add(entity);
+        }
+
+        private void DoUnregister()
+        {
+            if (!unregisterList.Any())
             {
-                updateEntities.Remove(updatable);
+                return;
             }
 
-            var fixedUpdatable = entity as IFixedUpdatable;
-            if (fixedUpdatable != null)
+            foreach (var entity in unregisterList)
             {
-                fixedUpdateEntities.Remove(fixedUpdatable);
+                var updatable = entity as IUpdatable;
+                if (updatable != null)
+                {
+                    updateEntities.Remove(updatable);
+                }
+
+                var fixedUpdatable = entity as IFixedUpdatable;
+                if (fixedUpdatable != null)
+                {
+                    fixedUpdateEntities.Remove(fixedUpdatable);
+                }
+
+                var lateUpdatable = entity as ILateUpdatable;
+                if (lateUpdatable != null)
+                {
+                    lateUpdateEntities.Remove(lateUpdatable);
+                }
             }
 
-            var lateUpdatable = entity as ILateUpdatable;
-            if (lateUpdatable != null)
-            {
-                lateUpdateEntities.Remove(lateUpdatable);
-            }
+            unregisterList.Clear();
         }
 
         private void Update()
@@ -80,6 +110,9 @@ namespace Camus.Updatables
             {
                 item.OnLateUpdate(duration);
             }
+
+            DoRegister();
+            DoUnregister();
         }
     }
 }
