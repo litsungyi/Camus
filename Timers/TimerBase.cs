@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Camus.Timers
 {
-    public class TimerBase : MonoBehaviour
+    public abstract class TimerBase : MonoBehaviour
     {
         #region Inner Classes
 
@@ -72,7 +72,7 @@ namespace Camus.Timers
         #region Fields
 
         [SerializeField] private TimerSetting setting;
-        [ReadOnly, SerializeField] private TimerState state;
+        [ReadOnly, SerializeField] private TimerState state = null;
         [ReadOnly, SerializeField] private TimerStaus status = TimerStaus.None;
         private Action onTimer = null;
 

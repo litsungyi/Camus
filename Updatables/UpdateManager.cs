@@ -6,12 +6,12 @@ namespace Camus.Updatables
 {
     public class UpdateManager : MonoBehaviour
     {
-        private HashSet<IUpdatable> updateEntities = new HashSet<IUpdatable>();
-        private HashSet<IFixedUpdatable> fixedUpdateEntities = new HashSet<IFixedUpdatable>();
-        private HashSet<ILateUpdatable> lateUpdateEntities = new HashSet<ILateUpdatable>();
+        private readonly HashSet<IUpdatable> updateEntities = new HashSet<IUpdatable>();
+        private readonly HashSet<IFixedUpdatable> fixedUpdateEntities = new HashSet<IFixedUpdatable>();
+        private readonly HashSet<ILateUpdatable> lateUpdateEntities = new HashSet<ILateUpdatable>();
 
-        private IList<MonoBehaviour> registerList = new List<MonoBehaviour>();
-        private IList<MonoBehaviour> unregisterList = new List<MonoBehaviour>();
+        private readonly IList<object> registerList = new List<object>();
+        private readonly IList<object> unregisterList = new List<object>();
 
         public void Register(MonoBehaviour entity)
         {
