@@ -7,24 +7,25 @@ public class UpdaterTester : MonoBehaviour
     public bool testUpdatable;
     public int amount;
 
-	void Awake()
+    private void Awake()
     {
         App.Instance.EnableFps(true);
 
-        if (testUpdatable)
+        for (int i = 0; i < amount; ++i)
         {
-            for (int i = 0; i < amount; ++i)
+            if (testUpdatable)
             {
-                var instance = Object.Instantiate<UpdatableTest>(prefab1, transform);
-                App.Instance.Updater.Register(instance);
+                UpdatableTest.Create(prefab1, transform);
+            }
+            else
+            {
+                UpdateTest.Create(prefab2, transform);
             }
         }
-        else
-        {
-            for (int i = 0; i < amount; ++i)
-            {
-                var instance = Object.Instantiate<UpdateTest>(prefab2, transform);
-            }
-        }
-	}
+    }
+
+    public static Vector3 RandomMove(Vector3 localPosition)
+    {
+        return new Vector3(localPosition.x + (Random.value - 0.5f), localPosition.y + (Random.value - 0.5f), localPosition.z);
+    }
 }
