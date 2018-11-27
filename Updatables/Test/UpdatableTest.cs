@@ -9,10 +9,6 @@ public class UpdatableTest : MonoBehaviour, IUpdatable
         App.Instance.Updater.Register(instance);
     }
 
-    private void Start()
-    {
-    }
-
     void IUpdatable.OnUpdate(float duration)
     {
         transform.localPosition = UpdaterTester.RandomMove(transform.localPosition);

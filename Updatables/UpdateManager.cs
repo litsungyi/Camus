@@ -4,115 +4,124 @@ using UnityEngine;
 
 namespace Camus.Updatables
 {
-    public class UpdateManager : MonoBehaviour
+    public class UpdateManager : IFixedUpdatable, IUpdatable, ILateUpdatable
     {
-        private readonly HashSet<IUpdatable> updateEntities = new HashSet<IUpdatable>();
+        private enum RegisterType
+        {
+            Add,
+            Remove,
+        }
+
+        private class RegisterInfo
+        {
+            public MonoBehaviour entity;
+            public RegisterType type;
+        }
+
         private readonly HashSet<IFixedUpdatable> fixedUpdateEntities = new HashSet<IFixedUpdatable>();
+        private readonly HashSet<IUpdatable> updateEntities = new HashSet<IUpdatable>();
         private readonly HashSet<ILateUpdatable> lateUpdateEntities = new HashSet<ILateUpdatable>();
 
-        private readonly IList<object> registerList = new List<object>();
-        private readonly IList<object> unregisterList = new List<object>();
+        private readonly IList<RegisterInfo> registerList = new List<RegisterInfo>();
 
         public void Register(MonoBehaviour entity)
         {
-            registerList.Add(entity);
+            registerList.Add(new RegisterInfo()
+            {
+                entity = entity,
+                type = RegisterType.Add
+            });
         }
 
-        private void DoRegister()
+        public void Unregister(MonoBehaviour entity)
+        {
+            registerList.Add(new RegisterInfo()
+            {
+                entity = entity,
+                type = RegisterType.Remove
+            });
+        }
+
+        private void UpdateRegisterList()
         {
             if (!registerList.Any())
             {
                 return;
             }
 
-            foreach (var entity in registerList)
+            foreach (var info in registerList)
             {
-                var updatable = entity as IUpdatable;
-                if (updatable != null)
-                {
-                    updateEntities.Add(updatable);
-                }
-
-                var fixedUpdatable = entity as IFixedUpdatable;
+                var fixedUpdatable = info.entity as IFixedUpdatable;
                 if (fixedUpdatable != null)
                 {
-                    fixedUpdateEntities.Add(fixedUpdatable);
+                    if (info.type == RegisterType.Add)
+                    {
+                        fixedUpdateEntities.Add(fixedUpdatable);
+                    }
+                    else
+                    {
+                        fixedUpdateEntities.Remove(fixedUpdatable);
+                    }
                 }
 
-                var lateUpdatable = entity as ILateUpdatable;
+                var updatable = info.entity as IUpdatable;
+                if (updatable != null)
+                {
+                    if (info.type == RegisterType.Add)
+                    {
+                        updateEntities.Add(updatable);
+                    }
+                    else
+                    {
+                        updateEntities.Remove(updatable);
+                    }
+                }
+
+                var lateUpdatable = info.entity as ILateUpdatable;
                 if (lateUpdatable != null)
                 {
-                    lateUpdateEntities.Add(lateUpdatable);
+                    if (info.type == RegisterType.Add)
+                    {
+                        lateUpdateEntities.Add(lateUpdatable);
+                    }
+                    else
+                    {
+                        lateUpdateEntities.Remove(lateUpdatable);
+                    }
                 }
             }
 
             registerList.Clear();
         }
 
-        public void Unregister(MonoBehaviour entity)
+        void IFixedUpdatable.OnFixedUpdate(float duration)
         {
-            unregisterList.Add(entity);
-        }
-
-        private void DoUnregister()
-        {
-            if (!unregisterList.Any())
-            {
-                return;
-            }
-
-            foreach (var entity in unregisterList)
-            {
-                var updatable = entity as IUpdatable;
-                if (updatable != null)
-                {
-                    updateEntities.Remove(updatable);
-                }
-
-                var fixedUpdatable = entity as IFixedUpdatable;
-                if (fixedUpdatable != null)
-                {
-                    fixedUpdateEntities.Remove(fixedUpdatable);
-                }
-
-                var lateUpdatable = entity as ILateUpdatable;
-                if (lateUpdatable != null)
-                {
-                    lateUpdateEntities.Remove(lateUpdatable);
-                }
-            }
-
-            unregisterList.Clear();
-        }
-
-        private void Update()
-        {
-            var duration = Time.deltaTime;
-            foreach (var item in updateEntities)
-            {
-                item.OnUpdate(duration);
-            }
-        }
-
-        private void FixedUpdate()
-        {
-            var duration = Time.fixedDeltaTime;
             foreach (var item in fixedUpdateEntities)
             {
                 item.OnFixedUpdate(duration);
             }
+
+            UpdateRegisterList();
         }
 
-        private void LateUpdate()
+        void IUpdatable.OnUpdate(float duration)
         {
-            var duration = Time.deltaTime;
+            foreach (var item in updateEntities)
+            {
+                item.OnUpdate(duration);
+            }
+
+            UpdateRegisterList();
+        }
+
+        void ILateUpdatable.OnLateUpdate(float duration)
+        {
             foreach (var item in lateUpdateEntities)
             {
                 item.OnLateUpdate(duration);
             }
 
-            DoRegister();
-            DoUnregister();
+            UpdateRegisterList();
         }
     }
 }
