@@ -1,3 +1,8 @@
-﻿{
-	"name": "Camus"
+{
+    "name": "Camus",
+    "references": [
+        "JsonDotNet"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": []
 }
