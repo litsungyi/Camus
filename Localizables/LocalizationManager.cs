@@ -102,7 +102,7 @@ namespace Camus.Localizables
                 return InvalidValue;
             }
 
-            if (null == CurrentStringDatas || !CurrentStringDatas.ContainsKey(localKey.Key))
+            if (CurrentStringDatas == null|| !CurrentStringDatas.ContainsKey(localKey.Key))
             {
                 Debug.LogWarning(string.Format("[LocalizationManager] LocalKey not found! (Language = {0}, LocalKey = {1})", currentLanguage.ToString(), localKey.Key));
                 return InvalidValue;

@@ -13,6 +13,8 @@ namespace Camus.Core.Ids
     [JsonConverter(typeof(IdentitySerializer))]
     public abstract class Identity<T>
     {
+        [SerializeField] private T id;
+
         /// <summary>
         /// 建構識別碼
         /// </summary>
@@ -21,8 +23,6 @@ namespace Camus.Core.Ids
         {
             this.id = id;
         }
-
-        [SerializeField] private T id;
 
         /// <summary>
         /// 唯一識別碼

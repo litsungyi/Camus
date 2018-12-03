@@ -7,6 +7,7 @@ public partial class App
     [ReadOnly, SerializeField] private UpdateManagerHost updaterHost;
 
     private UpdateManager internalUpdater;
+
     internal UpdateManager InternalUpdater
     {
         get
@@ -27,6 +28,7 @@ public partial class App
     }
 
     private UpdateManager updater;
+
     public UpdateManager Updater
     {
         get

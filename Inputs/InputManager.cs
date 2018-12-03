@@ -50,20 +50,16 @@ namespace Camus.Inputs
             }
             else if (Input.GetMouseButton((int) Button.Primary))
             {
-
             }
 
             if (Input.GetMouseButtonDown((int) Button.Secondary))
             {
-
             }
             else if (Input.GetMouseButtonUp((int) Button.Secondary))
             {
-
             }
             else if (Input.GetMouseButton((int) Button.Secondary))
             {
-
             }
         }
     }
