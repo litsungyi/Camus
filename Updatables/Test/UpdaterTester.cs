@@ -23,7 +23,7 @@ public class UpdaterTester : MonoBehaviour
         {
             for (int i = 0; i < amount; ++i)
             {
-                var instance = Object.Instantiate<UpdateTest>(prefab2, transform);
+                Object.Instantiate<UpdateTest>(prefab2, transform);
             }
         }
 	}

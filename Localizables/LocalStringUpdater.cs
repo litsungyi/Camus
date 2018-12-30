@@ -5,10 +5,10 @@ namespace Camus.Localizables
 {
     public class LocalStringUpdater : MonoBehaviour
     {
-        [SerializeField] private Text Text = null;
-        [SerializeField] private string Key = string.Empty;
+        [SerializeField] private Text Text;
+        [SerializeField] private string Key;
 
-        private LocalKey localKey;
+        private LocalKey localKey = new LocalKey(string.Empty);
 
         private void Start()
         {
