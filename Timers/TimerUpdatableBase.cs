@@ -1,8 +1,6 @@
-﻿using System.Collections;
-
-namespace Camus.Timers
+﻿namespace Camus.Timers
 {
-    public class TimerUpdatableBase : TimerBase
+    public abstract class TimerUpdatableBase : TimerBase
     {
         private void OnEnable()
         {
