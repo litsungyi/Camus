@@ -18,21 +18,8 @@ namespace Camus.Inputs
 
         private bool dragging = false;
 
-        public Vector3 delta
-        {
-            get
-            {
-                return lastPosition - prevPosition;
-            }
-        }
-
-        public Vector3 dragDelta
-        {
-            get
-            {
-                return dragging ? dragPosition - lastPosition : Vector3.zero;
-            }
-        }
+        public Vector3 Delta => lastPosition - prevPosition;
+        public Vector3 DragDelta => dragging ? dragPosition - lastPosition : Vector3.zero;
 
         void IUpdatable.OnUpdate(float duration)
         {

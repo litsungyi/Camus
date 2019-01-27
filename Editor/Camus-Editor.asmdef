@@ -1,0 +1,10 @@
+{
+    "name": "Camus-Editor",
+    "references": [
+        "Camus"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": []
+}

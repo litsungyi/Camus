@@ -12,7 +12,7 @@ namespace Camus.ObjectPools
         [SerializeField]
         private int minInstance;
 
-        private Stack<GameObject> reusables = new Stack<GameObject>();
+        private readonly Stack<GameObject> reusables = new Stack<GameObject>();
 
         private void Awake()
         {
@@ -25,7 +25,7 @@ namespace Camus.ObjectPools
 
         private GameObject CreateInstance()
         {
-            var instance = GameObject.Instantiate(prefab, transform);
+            var instance = Instantiate(prefab, transform);
             return instance;
         }
 

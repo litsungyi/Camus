@@ -1,7 +1,8 @@
 ﻿// Ref. http://wiki.unity3d.com/index.php/CreateScriptableObjectAsset
-using UnityEngine;
-using UnityEditor;
+
 using System.IO;
+using UnityEditor;
+using UnityEngine;
 
 namespace Camus
 {

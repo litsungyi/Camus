@@ -1,3 +1,6 @@
-﻿{
-	"name": "Camus"
+{
+    "name": "Camus",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": []
 }
