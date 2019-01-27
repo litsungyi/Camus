@@ -1,4 +1,5 @@
 using System;
+using Camus;
 using Camus.Core;
 using Camus.Utilities;
 
@@ -13,6 +14,10 @@ public partial class App : Singleton<App>
     }
 
     private FPS fps;
+
+
+
+    private SceneController sceneController;
 
     [System.Diagnostics.Conditional("UNITY_EDITOR")]
     public void EnableFps(bool enable)
