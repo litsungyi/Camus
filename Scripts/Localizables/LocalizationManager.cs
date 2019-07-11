@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Camus.Localizables
 {
     [Serializable]
-    public partial class LocalizationManager
+    public class LocalizationManager
     {
         private static readonly string InvalidValue = "LOCAL_KEY_NOT_FOUND";
         private static readonly LocalKey InvalidLocalKey = new LocalKey(string.Empty);
@@ -54,7 +54,10 @@ namespace Camus.Localizables
             }
         }
 
-        partial void Initialize();
+        public void Initialize()
+        {
+
+        }
 
         public LocalizationManager()
         {

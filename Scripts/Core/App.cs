@@ -1,6 +1,6 @@
-using System;
 using Camus;
 using Camus.Core;
+using Camus.Localizables;
 using Camus.Utilities;
 
 // NOTE: Use global partial singleton for Game extends.
@@ -15,9 +15,17 @@ public partial class App : Singleton<App>
 
     private FPS fps;
 
+    public SceneController SceneController
+    {
+        get;
+        private set;
+    }
 
-
-    private SceneController sceneController;
+    public LocalizationManager LocalizationManager
+    {
+        get;
+        private set;
+    }
 
     [System.Diagnostics.Conditional("UNITY_EDITOR")]
     public void EnableFps(bool enable)
@@ -37,20 +45,10 @@ public partial class App : Singleton<App>
 #if UNITY_EDITOR
         EnableFps(true);
 #endif
+    }
 
-        Logger.Log("App Awake");
-        Logger.LogWarning("App Awake LogWarning");
-        Logger.LogError("App Awake LogError");
-        Logger.Log(LogTag.HIGH, "App Awake");
-        Logger.LogWarning(LogTag.LOW, "App Awake LogWarning");
-        Logger.LogError(LogTag.MIDDLE, "App Awake LogError");
-        try
-        {
-            throw new Exception("Error", new Exception("Inner"));
-        }
-        catch (Exception ex)
-        {
-            Logger.LogException(ex);
-        }
+    public void Initialize()
+    {
+        LocalizationManager = new LocalizationManager();
     }
 }

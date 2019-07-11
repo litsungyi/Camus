@@ -1,29 +1,47 @@
-﻿using UnityEngine;
+﻿using Campus.EventSystems;
+using Camus.Localizables.Events;
+using Camus.Validators;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace Camus.Localizables
 {
     public class LocalStringUpdater : MonoBehaviour
     {
-        [SerializeField] private Text Text;
+        [NotNull, SerializeField] private Text Text;
         [SerializeField] private string Key;
 
-        private LocalKey localKey = new LocalKey(string.Empty);
+        private LocalKey localKey;
 
-        private void Start()
+        private void Awake()
         {
-            if (Text == null || string.IsNullOrEmpty(Key))
+            if (string.IsNullOrEmpty(Key))
             {
                 return;
             }
 
-            //localKey = LocalKey.Create(Key);
-            //Text.text = localKey.Value;
+            localKey = new LocalKey(Key);
         }
 
-        private void Update()
+        private void OnEnable()
         {
-            if (Text == null || string.IsNullOrEmpty(Key))
+            EventDispatcher.Register<LocaleChangedEvent>(OnLocaleChange);
+            UpdateText();
+        }
+
+        private void OnDisable()
+        {
+            EventDispatcher.Unregister<LocaleChangedEvent>(OnLocaleChange);
+        }
+
+        private void OnLocaleChange(LocaleChangedEvent e)
+        {
+            UpdateText();
+        }
+
+        private void UpdateText()
+        {
+            if (Text == null || localKey == null)
             {
                 return;
             }
