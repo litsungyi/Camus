@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
@@ -53,14 +53,23 @@ namespace {0}
 
 #endregion
 
+#region AssetBundles
+
+        public static class AssetBundleInfos
+        {{
+{5}
+        }}
+
+#endregion
     }}
 }}
 ";
 
-        private readonly string sceneTemplate = "            public static readonly SceneInfo {0} = new SceneInfo({1}, \"{2}\");\n";
-        private readonly string tagTemplate = "            public static readonly TagInfo {0} = new TagInfo({1}, \"{2}\");\n";
-        private readonly string layerTemplate = "            public static readonly LayerInfo {0} = new LayerInfo({1}, \"{2}\");\n";
-        private readonly string sortingLayerTemplate = "            public static readonly SortingLayerInfo {0} = new SortingLayerInfo({1}, \"{2}\");\n";
+        private const string sceneTemplate = "            public static readonly SceneInfo {0} = new SceneInfo({1}, \"{2}\");\n";
+        private const string tagTemplate = "            public static readonly TagInfo {0} = new TagInfo({1}, \"{2}\");\n";
+        private const string layerTemplate = "            public static readonly LayerInfo {0} = new LayerInfo({1}, \"{2}\");\n";
+        private const string sortingLayerTemplate = "            public static readonly SortingLayerInfo {0} = new SortingLayerInfo({1}, \"{2}\");\n";
+        private const string assetBundleTemplate = "            public static readonly AssetBundleInfo {0} = new AssetBundleInfo(\"{1}\");\n";
 
         private string myNamespace;
         private string folder = "Assets/Scripts/";
@@ -69,6 +78,7 @@ namespace {0}
         private static void Init()
         {
             BinderEditorWindow window = (BinderEditorWindow) EditorWindow.GetWindow(typeof(BinderEditorWindow));
+            window.myNamespace = $"{PlayerSettings.companyName}.{PlayerSettings.productName}";
             window.Show();
         }
 
@@ -82,10 +92,11 @@ namespace {0}
                 StringBuilder builder = new StringBuilder();
                 var scenes = ParseScenes();
                 var tags = ParseTags();
-                var layers = ParseLayer();
-                var sortingLayers = ParseSortingLayer();
+                var layers = ParseLayers();
+                var sortingLayers = ParseSortingLayers();
+                var assetBundles = ParseAssetBundles();
 
-                builder.AppendFormat(projectInfoTemplate, myNamespace, scenes, tags, layers, sortingLayers);
+                builder.AppendFormat(projectInfoTemplate, myNamespace, scenes, tags, layers, sortingLayers, assetBundles);
                 File.WriteAllText($"{folder}/ProjectInfo.cs", builder.ToString());
             }
         }
@@ -116,7 +127,7 @@ namespace {0}
             return builder.ToString();
         }
 
-        private string ParseLayer()
+        private string ParseLayers()
         {
             StringBuilder builder = new StringBuilder();
             var layers = UnityEditorInternal.InternalEditorUtility.layers;
@@ -129,7 +140,7 @@ namespace {0}
             return builder.ToString();
         }
 
-        private string ParseSortingLayer()
+        private string ParseSortingLayers()
         {
             StringBuilder builder = new StringBuilder();
             var sortingLayers = SortingLayer.layers;
@@ -142,9 +153,22 @@ namespace {0}
             return builder.ToString();
         }
 
+        private string ParseAssetBundles()
+        {
+            StringBuilder builder = new StringBuilder();
+            var assetBundles = AssetDatabase.GetAllAssetBundleNames();
+            for (int index = 0; index < assetBundles.Length; ++index)
+            {
+                var assetBundle = assetBundles[index];
+                builder.AppendFormat(assetBundleTemplate, ParseName(assetBundle), assetBundle);
+            }
+
+            return builder.ToString();
+        }
+
         private string ParseName(string text)
         {
-            return text.Replace(" ", "_");
+            return text.Replace(" ", "_").Replace("/", "_");
         }
     }
 }
