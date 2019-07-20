@@ -1,4 +1,4 @@
-﻿namespace Campus.EventSystems
+﻿namespace Camus.EventSystems
 {
     public interface IDomainEvent
     {

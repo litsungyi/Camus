@@ -1,4 +1,4 @@
-﻿using Campus.EventSystems;
+﻿using Camus.EventSystems;
 using Camus.Localizables.Events;
 using Camus.Validators;
 using UnityEngine;

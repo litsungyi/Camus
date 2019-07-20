@@ -1,4 +1,4 @@
-﻿using Campus.EventSystems;
+﻿using Camus.EventSystems;
 
 namespace Camus.Localizables.Events
 {

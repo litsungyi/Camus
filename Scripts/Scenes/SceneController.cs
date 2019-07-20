@@ -6,8 +6,6 @@ namespace Camus
 {
     public class SceneController
     {
-
-
         //public IEnumerator LoadSceneAsync(int sceneIndex)
         //{
             //var currentScene = SceneManager.GetActiveScene();

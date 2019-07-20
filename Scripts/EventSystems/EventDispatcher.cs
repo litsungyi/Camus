@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Campus.EventSystems
+namespace Camus.EventSystems
 {
     public static class EventDispatcher
     {
