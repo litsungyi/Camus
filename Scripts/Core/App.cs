@@ -1,7 +1,11 @@
+using System.Collections.Generic;
 using Camus;
 using Camus.Core;
 using Camus.Localizables;
+using Camus.ResourceSystems;
 using Camus.Utilities;
+using Newtonsoft.Json;
+using UnityEngine;
 
 // NOTE: Use global partial singleton for Game extends.
 public partial class App : Singleton<App>
@@ -49,6 +53,9 @@ public partial class App : Singleton<App>
 
     public void Initialize()
     {
+        var text = Resources.Load<TextAsset>("Localization").text;
+        var datas = JsonConvert.DeserializeObject<IList<LocalData>>(text);
         LocalizationManager = new LocalizationManager();
+        LocalizationManager.Initialize(Language.TraditionChinese, datas);
     }
 }

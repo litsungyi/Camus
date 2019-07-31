@@ -6,10 +6,16 @@ using UnityEngine;
 namespace Camus.Localizables
 {
     [Serializable]
-    public class LocalizationManager
+    public sealed class LocalizationManager
     {
         private static readonly string InvalidValue = "LOCAL_KEY_NOT_FOUND";
         private static readonly LocalKey InvalidLocalKey = new LocalKey(string.Empty);
+
+        private bool Initialized
+        {
+            get;
+            set;
+        }
 
         private IDictionary<Language, IDictionary<string, string>> StringDatas = new Dictionary<Language, IDictionary<string, string>>();
         private IDictionary<string, string> CurrentStringDatas = new Dictionary<string, string>();
@@ -40,7 +46,7 @@ namespace Camus.Localizables
 
                 if (!StringDatas.ContainsKey(value))
                 {
-                    Debug.LogWarning(string.Format("[LocalizationManager] Unknown language! (Language = {0})", value.ToString()));
+                    Debug.LogWarning($"[{nameof(LocalizationManager)}] Unknown language! (Language = {value.ToString()}");
                     return;
                 }
 
@@ -54,30 +60,55 @@ namespace Camus.Localizables
             }
         }
 
-        public void Initialize()
+        public void Initialize(Language language, IList<LocalData> datas)
         {
+            if (Initialized)
+            {
+                Debug.LogWarning($"[{nameof(LocalizationManager)}] Already initialized!");
+                return;
+            }
 
+            currentLanguage = language;
+            foreach (var data in datas)
+            {
+                foreach (var value in data.Values)
+                {
+                    if (!StringDatas.ContainsKey(value.Key))
+                    {
+                        StringDatas.Add(value.Key, new Dictionary<string, string>());
+                    }
+
+                    StringDatas[value.Key].Add(data.Key, value.Value);
+                }
+            }
+
+            if (!StringDatas.ContainsKey(currentLanguage))
+            {
+                Debug.LogWarning($"[{nameof(LocalizationManager)}] Language not found! (Language = {currentLanguage.ToString()})");
+                Initialized = true;
+                return;
+            }
+
+            CurrentStringDatas = StringDatas[currentLanguage];
+            Initialized = true;
         }
 
         public LocalizationManager()
         {
             StringDatas = new Dictionary<Language, IDictionary<string, string>>();
-            Initialize();
-
-            if (!StringDatas.ContainsKey(currentLanguage))
-            {
-                Debug.LogWarning(string.Format("[LocalizationManager] Language not found! (Language = {0})", currentLanguage.ToString()));
-                return;
-            }
-
-            CurrentStringDatas = StringDatas[currentLanguage];
         }
 
         public LocalKey GetLocalKey(string key)
         {
+            if (!Initialized)
+            {
+                Debug.LogWarning($"[{nameof(LocalizationManager)}] Not initialized!");
+                return InvalidLocalKey;
+            }
+
             if (string.IsNullOrEmpty(key) || null == KeyDatas)
             {
-                Debug.LogWarning("[LocalizationManager] key is null!");
+                Debug.LogWarning($"[{nameof(LocalizationManager)}] Key is null!");
                 return InvalidLocalKey;
             }
 
@@ -97,18 +128,24 @@ namespace Camus.Localizables
         /// otherwise return a localization of localKey (equals to localKey.Value)
         /// NOTE: Don't (and can't) use this method directly, use localKey.Value instead
         /// </summary>
-        public string GetLocalString(LocalKey localKey)
+        internal string GetLocalString(LocalKey localKey)
         {
+            if (!Initialized)
+            {
+                Debug.LogWarning($"[{nameof(LocalizationManager)}] Not initialized!");
+                return $"{InvalidValue}: <Not initialized>";
+            }
+
             if (localKey == null)
             {
-                Debug.LogWarning(string.Format("[LocalizationManager] LocalKey is null! (Language = {0})", currentLanguage.ToString()));
-                return InvalidValue;
+                Debug.LogWarning($"[{nameof(LocalizationManager)}] LocalKey is null! (Language = {currentLanguage.ToString()})");
+                return $"{InvalidValue}: <null>";
             }
 
             if (CurrentStringDatas == null|| !CurrentStringDatas.ContainsKey(localKey.Key))
             {
-                Debug.LogWarning(string.Format("[LocalizationManager] LocalKey not found! (Language = {0}, LocalKey = {1})", currentLanguage.ToString(), localKey.Key));
-                return InvalidValue;
+                Debug.LogWarning($"[{nameof(LocalizationManager)}] LocalKey not found! (Language = {currentLanguage.ToString()}, LocalKey = {localKey.Key})");
+                return $"{InvalidValue}: {localKey.Key}";
             }
 
             return CurrentStringDatas[localKey.Key];
