@@ -64,12 +64,12 @@ namespace Camus.UiUtilities
             instance.gameObject.name = uiName;
             instance.gameObject.SetActive(false);
             instance.transform.SetParent(Instance.uiRoot, false);
-            Controllers.Add(name, instance);
+            Controllers.Add(uiName, instance);
 
             return instance;
         }
 
-        public T CreateAndShowUi<T>(string uiName, T prefab, Action<bool> callback) where T : UiBaseController
+        public T CreateAndShowUi<T>(string uiName, T prefab, Action<bool> callback = null) where T : UiBaseController
         {
             var target = CreateUi(uiName, prefab);
             if (target == null)
@@ -84,7 +84,7 @@ namespace Camus.UiUtilities
             return target;
         }
 
-        public void ShowUi(string uiName, Action<bool> callback)
+        public void ShowUi(string uiName, Action<bool> callback = null)
         {
             if (string.IsNullOrEmpty(uiName))
             {
@@ -106,7 +106,7 @@ namespace Camus.UiUtilities
             return;
         }
 
-        public void HideUi(string uiName, Action<bool> callback)
+        public void HideUi(string uiName, Action<bool> callback = null)
         {
             if (string.IsNullOrEmpty(uiName))
             {
@@ -128,7 +128,7 @@ namespace Camus.UiUtilities
             callback?.Invoke(true);
         }
 
-        public void DestroyUi(string uiName, Action<bool> callback)
+        public void DestroyUi(string uiName, Action<bool> callback = null)
         {
             if (string.IsNullOrEmpty(uiName))
             {
