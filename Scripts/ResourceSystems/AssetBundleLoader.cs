@@ -67,5 +67,24 @@ namespace Camus.ResourceSystems
             var instance = bundle.LoadAsset<GameObject>(path);
             return instance.GetComponent<T>();
         }
+
+        public static T LoadEffectResource<T>(AssetBundleInfo bundleInfo, string assetName) where T : MonoBehaviour
+        {
+            return LoadEffectResource<T>(bundleInfo.Name, assetName);
+        }
+
+        public static T LoadEffectResource<T>(string bundleName, string assetName) where T : MonoBehaviour
+        {
+            var bundle = LoadAssetBundle(bundleName);
+            if (bundle == null)
+            {
+                Debug.Log("Failed to load AssetBundle!");
+                return null;
+            }
+
+            var path = $"Assets/Atlas/boostV001effect/{assetName}.prefab";
+            var instance = bundle.LoadAsset<GameObject>(path);
+            return instance.GetComponent<T>();
+        }
     }
 }

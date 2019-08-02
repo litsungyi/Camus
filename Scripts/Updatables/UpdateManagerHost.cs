@@ -36,7 +36,7 @@ namespace Camus.Updatables
             updaters[index] = manager;
         }
 
-        private void OnFixedUpdate()
+        private void FixedUpdate()
         {
             var duration = Time.fixedDeltaTime;
             for (var index = 0; index < updaters.Count; ++index)
@@ -49,7 +49,7 @@ namespace Camus.Updatables
             }
         }
 
-        private void OnUpdate()
+        private void Update()
         {
             var duration = Time.deltaTime;
             for (var index = 0; index < updaters.Count; ++index)
@@ -62,7 +62,7 @@ namespace Camus.Updatables
             }
         }
 
-        private void OnLateUpdate()
+        private void LateUpdate()
         {
             var duration = Time.deltaTime;
             for (var index = 0; index < updaters.Count; ++index)

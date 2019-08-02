@@ -1,22 +1,24 @@
-﻿using UnityEngine;
 using System.Collections;
+using Camus.Projects;
 using UnityEngine.SceneManagement;
 
-namespace Camus
+namespace Camus.Scenes
 {
     public class SceneController
     {
-        //public IEnumerator LoadSceneAsync(int sceneIndex)
-        //{
-            //var currentScene = SceneManager.GetActiveScene();
-            //
-            //
-            //SceneManager.LoadSceneAsync(sceneIndex);
-            //var loading = SceneManager.LoadSceneAsync("Game");
-            //while (!loading.isDone)
-            //{
-            //    yield return null;
-            //}
-        //}
+        private IScene currentScene;
+
+        public IEnumerator LoadSceneAsync(SceneInfo sceneInfo)
+        {
+            currentScene?.OnSceneUnloaded();
+            var loading = SceneManager.LoadSceneAsync(sceneInfo.Index);
+            while (!loading.isDone)
+            {
+                yield return null;
+            }
+
+            var scene = SceneManager.GetActiveScene();
+            currentScene?.OnSceneUnloaded();
+        }
     }
 }

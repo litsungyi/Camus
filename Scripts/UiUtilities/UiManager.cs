@@ -46,6 +46,15 @@ namespace Camus.UiUtilities
 
         #endregion
 
+        public T CreateEffect<T>(T prefab) where T : MonoBehaviour
+        {
+            var instance = Instantiate(prefab);
+            instance.gameObject.SetActive(true);
+            instance.transform.SetParent(Instance.uiRoot, false);
+
+            return instance;
+        }
+
         public T CreateUi<T>(string uiName, T prefab) where T : UiBaseController
         {
             if (string.IsNullOrEmpty(uiName))

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Camus;
 using Camus.Core;
 using Camus.Localizables;
-using Camus.ResourceSystems;
+using Camus.Scenes;
 using Camus.Utilities;
 using Newtonsoft.Json;
 using UnityEngine;
