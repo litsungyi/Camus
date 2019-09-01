@@ -132,7 +132,6 @@ namespace Camus.UiUtilities
             }
 
             target.gameObject.SetActive(false);
-            Controllers.Remove(uiName);
 
             callback?.Invoke(true);
         }
