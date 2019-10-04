@@ -1,6 +1,7 @@
 using System.IO;
 using System.Text;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -104,11 +105,14 @@ namespace {0}
         private string ParseScenes()
         {
             StringBuilder builder = new StringBuilder();
-            var max = SceneManager.sceneCount;
+            var max = SceneManager.sceneCountInBuildSettings;
             for (int index = 0; index < max; ++index)
             {
-                var scene = SceneManager.GetSceneAt(index);
-                builder.AppendFormat(sceneTemplate, ParseName(scene.name), index, scene.name);
+                var sceneSetting = EditorBuildSettings.scenes[index];
+                //var scene = SceneManager.GetSceneByPath(sceneSetting.path);
+                var sceneName = ParsePath(sceneSetting.path);
+                var scene = SceneManager.GetSceneByBuildIndex(index);
+                builder.AppendFormat(sceneTemplate, ParseName(sceneName), index, sceneName);
             }
 
             return builder.ToString();
@@ -169,6 +173,11 @@ namespace {0}
         private string ParseName(string text)
         {
             return text.Replace(" ", "_").Replace("/", "_");
+        }
+
+        private string ParsePath(string path)
+        {
+            return Path.GetFileNameWithoutExtension(path);
         }
     }
 }

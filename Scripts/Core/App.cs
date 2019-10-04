@@ -57,5 +57,7 @@ public partial class App : Singleton<App>
         var datas = JsonConvert.DeserializeObject<IList<LocalData>>(text);
         LocalizationManager = new LocalizationManager();
         LocalizationManager.Initialize(Language.TraditionChinese, datas);
+
+        SceneController = new SceneController();
     }
 }
