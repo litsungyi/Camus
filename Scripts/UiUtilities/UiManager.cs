@@ -109,6 +109,7 @@ namespace Camus.UiUtilities
                 return;
             }
 
+            target.GetGameObject().SetActive(true);
             callback?.Invoke(true);
             return;
         }
@@ -129,6 +130,7 @@ namespace Camus.UiUtilities
                 return;
             }
 
+            target.GetGameObject().SetActive(false);
             callback?.Invoke(true);
 
             if (destroy)

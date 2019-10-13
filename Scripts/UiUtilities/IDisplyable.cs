@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 namespace Camus.UiUtilities
 {
@@ -7,5 +8,6 @@ namespace Camus.UiUtilities
         void Show(Action<bool> callback = null);
         void Hide(bool destroy, Action<bool> callback = null);
         void Demolish();
+        GameObject GetGameObject();
     }
 }

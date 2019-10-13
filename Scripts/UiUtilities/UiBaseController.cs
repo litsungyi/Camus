@@ -11,13 +11,12 @@ namespace Camus.UiUtilities
 
         #region IDisplyable
 
-        public virtual void Show(Action<bool> callback)
+        public virtual void Show(Action<bool> callback = null)
         {
             UiManager.Instance.ShowUi(name, callback);
-            gameObject.SetActive(true);
         }
 
-        public virtual void Hide(bool destroy, Action<bool> callback)
+        public virtual void Hide(bool destroy = false, Action<bool> callback = null)
         {
             if (destroy)
             {
@@ -26,14 +25,12 @@ namespace Camus.UiUtilities
             else
             {
                 UiManager.Instance.HideUi(name, callback);
-                gameObject.SetActive(false);
             }
         }
 
-        public virtual void Demolish()
-        {
-            Destroy(gameObject);
-        }
+        public virtual void Demolish() => Destroy(gameObject);
+
+        public virtual GameObject GetGameObject() => gameObject;
 
         #endregion
 
@@ -46,7 +43,7 @@ namespace Camus.UiUtilities
         {
             eventSourcing = new UiEventSourcing();
 
-            OnAwake();
+            OnＡwaked();
             RegisterEvents();
             InitializeView();
         }
@@ -57,7 +54,7 @@ namespace Camus.UiUtilities
             this.OnDestroied();
         }
 
-        protected virtual void OnAwake() { }
+        protected virtual void OnＡwaked() { }
         protected virtual void OnDestroied() { }
         protected virtual void RegisterEvents() { }
         protected virtual void UnregisterEvents() { }
