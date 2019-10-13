@@ -48,5 +48,11 @@ namespace Camus.Localizables
 
             Text.text = localKey.Value;
         }
+
+        public void UpdateKey(LocalKey key)
+        {
+            localKey = key;
+            UpdateText();
+        }
     }
 }

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Linq;
 using Camus.Projects;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace Camus.Scenes
@@ -18,20 +19,25 @@ namespace Camus.Scenes
         {
             currentScene?.OnSceneUnloaded();
             var oldScene = SceneManager.GetActiveScene();
-            var loading = SceneManager.LoadSceneAsync(sceneInfo.Index);
-            while (!loading.isDone)
-            {
-                yield return null;
-            }
+            var unloading = SceneManager.UnloadSceneAsync(oldScene);
+            yield return WaitUntilDone(unloading);
+
+            var loading = SceneManager.LoadSceneAsync(sceneInfo.Name);
+            yield return WaitUntilDone(loading);
 
             var newScene = SceneManager.GetActiveScene();
             currentScene = newScene.GetRootGameObjects().FirstOrDefault(s => s.GetComponent<IScene>() != null)?.GetComponent<IScene>();
-
             currentScene?.OnSceneLoaded();
-            var unloading = SceneManager.UnloadSceneAsync(oldScene.buildIndex);
-            while (!unloading.isDone)
+
+            IEnumerator WaitUntilDone(AsyncOperation async)
             {
-                yield return null;
+                if (async != null)
+                {
+                    while (!async.isDone)
+                    {
+                        yield return null;
+                    }
+                }
             }
         }
     }

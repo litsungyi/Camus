@@ -6,5 +6,6 @@ namespace Camus.UiUtilities
     {
         void Show(Action<bool> callback = null);
         void Hide(bool destroy, Action<bool> callback = null);
+        void Demolish();
     }
 }

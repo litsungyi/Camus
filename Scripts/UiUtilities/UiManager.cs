@@ -16,10 +16,10 @@ namespace Camus.UiUtilities
         [NotNull, SerializeField]
         private Transform uiRoot;
 
-        private IDictionary<string, UiBaseController> Controllers
+        private IDictionary<string, IDisplyable> Controllers
         {
             get;
-        } = new Dictionary<string, UiBaseController>();
+        } = new Dictionary<string, IDisplyable>();
 
         #region MonoBehaviour
 
@@ -37,7 +37,7 @@ namespace Camus.UiUtilities
         {
             foreach (var item in Controllers)
             {
-                Destroy(item.Value.gameObject);
+                item.Value.Demolish();
             }
 
             Controllers.Clear();
@@ -55,7 +55,7 @@ namespace Camus.UiUtilities
             return instance;
         }
 
-        public T CreateUi<T>(string uiName, T prefab) where T : UiBaseController
+        public UiBaseController<T> CreateUi<T>(string uiName, UiBaseController<T> prefab) where T : UiBaseView
         {
             if (string.IsNullOrEmpty(uiName))
             {
@@ -66,7 +66,7 @@ namespace Camus.UiUtilities
             if (Controllers.TryGetValue(uiName, out var target))
             {
                 Debug.LogWarning($"Ui {uiName} already created!");
-                return target as T;
+                return target as UiBaseController<T>;
             }
 
             var instance = Instantiate(prefab);
@@ -78,7 +78,7 @@ namespace Camus.UiUtilities
             return instance;
         }
 
-        public T CreateAndShowUi<T>(string uiName, T prefab, Action<bool> callback = null) where T : UiBaseController
+        public UiBaseController<T> CreateAndShowUi<T>(string uiName, UiBaseController<T> prefab, Action<bool> callback = null) where T : UiBaseView
         {
             var target = CreateUi(uiName, prefab);
             if (target == null)
@@ -109,13 +109,11 @@ namespace Camus.UiUtilities
                 return;
             }
 
-            target.gameObject.SetActive(true);
             callback?.Invoke(true);
-
             return;
         }
 
-        public void HideUi(string uiName, Action<bool> callback = null)
+        public void HideUi(string uiName, Action<bool> callback = null, bool destroy = false)
         {
             if (string.IsNullOrEmpty(uiName))
             {
@@ -131,32 +129,13 @@ namespace Camus.UiUtilities
                 return;
             }
 
-            target.gameObject.SetActive(false);
-
             callback?.Invoke(true);
-        }
 
-        public void DestroyUi(string uiName, Action<bool> callback = null)
-        {
-            if (string.IsNullOrEmpty(uiName))
+            if (destroy)
             {
-                Debug.LogError($"Ui name is empty!");
-                callback?.Invoke(false);
-                return;
+                Controllers.Remove(uiName);
+                target.Demolish();
             }
-
-            if (!Controllers.TryGetValue(uiName, out var target))
-            {
-                Debug.LogWarning($"Ui {uiName} not created!");
-                callback?.Invoke(false);
-                return;
-            }
-
-            target.gameObject.SetActive(false);
-            Controllers.Remove(uiName);
-            Destroy(target.gameObject);
-
-            callback?.Invoke(true);
         }
     }
 }
