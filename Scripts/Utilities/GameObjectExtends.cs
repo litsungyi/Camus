@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Camus.Projects;
+using UnityEngine;
 
 namespace Camus.Utilities
 {
@@ -20,5 +21,7 @@ namespace Camus.Utilities
 
             return parent.AddComponent<T>();
         }
+
+        public static bool IsTagged(this GameObject gameObject, TagInfo tagInfo) => gameObject != null && gameObject.CompareTag(tagInfo.Name);
     }
 }
