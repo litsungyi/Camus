@@ -7,7 +7,7 @@ namespace Camus.UiUtilities
     public abstract class UiBaseController<T> : MonoBehaviour, IDisplyable
         where T : UiBaseView
     {
-        protected UiEventSourcing eventSourcing;
+        protected EventSourcing eventSourcing;
 
         #region IDisplyable
 
@@ -41,7 +41,7 @@ namespace Camus.UiUtilities
 
         private void Awake()
         {
-            eventSourcing = new UiEventSourcing();
+            eventSourcing = new EventSourcing();
 
             OnＡwaked();
             RegisterEvents();

@@ -2,9 +2,9 @@
 
 namespace Camus.EventSystems
 {
-    public class UiEventSourcing
+    public class EventSourcing
     {
-        private static class EventHost<T> where T : IUiEvent
+        private static class EventHost<T> where T : IEvent
         {
             public static event Action<T> OnRaise = delegate { };
 
@@ -14,17 +14,17 @@ namespace Camus.EventSystems
             }
         }
 
-        public void Register<T>(Action<T> callback) where T : IUiEvent
+        public void Register<T>(Action<T> callback) where T : IEvent
         {
             EventHost<T>.OnRaise += callback;
         }
 
-        public void Unregister<T>(Action<T> callback) where T : IUiEvent
+        public void Unregister<T>(Action<T> callback) where T : IEvent
         {
             EventHost<T>.OnRaise -= callback;
         }
 
-        public void Raise<T>(T args) where T : IUiEvent
+        public void Raise<T>(T args) where T : IEvent
         {
             EventHost<T>.DoRaise(args);
         }

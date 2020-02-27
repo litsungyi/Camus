@@ -1,6 +1,6 @@
 ﻿namespace Camus.EventSystems
 {
-    public interface IUiEvent
+    public interface IEvent
     {
     }
 }

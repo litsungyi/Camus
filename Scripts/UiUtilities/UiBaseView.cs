@@ -5,11 +5,15 @@ namespace Camus.UiUtilities
 {
     public abstract class UiBaseView : MonoBehaviour
     {
-        protected UiEventSourcing eventSourcing;
-
-        internal void SetEventSourcing(UiEventSourcing uiEventSourcing)
+        protected EventSourcing EventSourcing
         {
-            this.eventSourcing = uiEventSourcing;
+            get;
+            private set;
+        }
+
+        internal void SetEventSourcing(EventSourcing eventSourcing)
+        {
+            EventSourcing = eventSourcing;
 
             OnUpdateEventSourcing();
         }
