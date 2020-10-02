@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Camus.ObjectPools.Internal;
+using Camus.Utilities;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -9,26 +10,26 @@ namespace Camus.ObjectPools
     public class ObjectPool : MonoBehaviour
     {
         [SerializeField]
-        private bool fixedSize;
-
-        [SerializeField]
         private GameObject prefab;
 
         [SerializeField]
-        private int minInstance;
+        private uint initialSize;
+
+        [SerializeField]
+        private uint growSize;
+
+        [SerializeField]
+        private uint maxGrowTime;
+
+        [ReadOnly, SerializeField]
+        private uint growTime;
+
+        [ReadOnly, SerializeField]
+        private uint currentSize;
+
+        private bool CanGrow => growTime < maxGrowTime;
 
         private readonly Stack<GameObject> reusables = new Stack<GameObject>();
-
-        private void Awake()
-        {
-            for (int i = 0; i < minInstance; ++i)
-            {
-                var instance = Instantiate(prefab, transform);
-                AddDebugInfo(instance);
-                instance.SetActive(false);
-                reusables.Push(instance);
-            }
-        }
 
         #region Debug
 
@@ -55,22 +56,52 @@ namespace Camus.ObjectPools
 
         #endregion
 
-        private GameObject CreateInstance()
+        private void Awake()
         {
-            if (fixedSize)
+            Assert.IsNotNull(prefab);
+            Assert.IsTrue(growSize >= 1, "[ObjectPool] GrowSize less than 1!");
+
+            if (growSize < 1)
             {
-                Debug.LogError("Fixed ObjectPool cannot growth.");
-                return null;
+                Debug.LogError("[ObjectPool] GrowSize less than 1!", gameObject);
+                growSize = 1;
             }
 
-            var instance = Instantiate(prefab, transform);
-            AddDebugInfo(instance);
-            return instance;
+            currentSize = Growth(initialSize);
         }
 
-        public GameObject Require(Transform parent = null)
+        private uint Growth(uint size)
         {
-            var instance = reusables.Any() ? reusables.Pop() : CreateInstance();
+            for (int i = 0; i < size; ++i)
+            {
+                var instance = Instantiate(prefab, transform);
+                AddDebugInfo(instance);
+                instance.SetActive(false);
+                reusables.Push(instance);
+            }
+
+            return size;
+        }
+
+        private GameObject GetInstance()
+        {
+            if (!reusables.Any())
+            {
+                if (!CanGrow)
+                {
+                    return null;
+                }
+
+                ++growTime;
+                currentSize += Growth(growSize);
+            }
+
+            return reusables.Pop();
+        }
+
+        public GameObject Acquire(Transform parent = null)
+        {
+            var instance = GetInstance();
             instance?.SetActive(true);
             if (parent != null)
             {
@@ -80,28 +111,35 @@ namespace Camus.ObjectPools
             return instance;
         }
 
-        public T Require<T>(Transform parent = null)
+        public T Acquire<T>(Transform parent = null)
             where T : MonoBehaviour
         {
-            var instance = Require(parent);
-            var target = instance.GetComponent(typeof(T));
+            var instance = Acquire(parent);
+            var target = instance?.GetComponent(typeof(T));
             return target as T;
         }
 
-        public void Release(GameObject instance)
+        public bool Release(GameObject instance)
         {
-            Assert.IsNotNull(instance);
+            Assert.IsNotNull(instance, "[ObjectPool] Release instance cannot be null!");
+
+            if (instance == null)
+            {
+                Debug.LogError("[ObjectPool] Release instance cannot be null!", gameObject);
+                return false;
+            }
 
             instance.SetActive(false);
             reusables.Push(instance);
             instance.transform.SetParent(transform);
             CheckDebugInfo(instance);
+            return true;
         }
 
-        public void Release<T>(T instance)
+        public bool Release<T>(T instance)
             where T : MonoBehaviour
         {
-            Release(instance.gameObject);
+            return Release(instance.gameObject);
         }
     }
 }
