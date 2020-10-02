@@ -1,10 +1,19 @@
 ﻿using Camus.Colliders.Events;
+using Camus.Colliders.Filters;
 using UnityEngine;
 
 namespace Camus.Colliders
 {
+    [RequireComponent(typeof(Rigidbody))]
+    [RequireComponent(typeof(Collider))]
     public class Collision3DWrapperLight : BaseColliderWrapper
     {
+        public IColliderFilter3D Filter
+        {
+            get;
+            set;
+        }
+
         private void Awake()
         {
             Validate();
@@ -32,11 +41,21 @@ namespace Camus.Colliders
 
         private void OnCollisionEnter(Collision other)
         {
+            if (Filter != null && !Filter.Filter(other.collider))
+            {
+                return;
+            }
+
             EventSource?.Raise(new Collision3DEnterEvent(other));
         }
 
         private void OnCollisionExit(Collision other)
         {
+            if (Filter != null && !Filter.Filter(other.collider))
+            {
+                return;
+            }
+
             EventSource?.Raise(new Collision3DExitEvent(other));
         }
     }

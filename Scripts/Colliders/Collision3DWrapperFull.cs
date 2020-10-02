@@ -7,6 +7,11 @@ namespace Camus.Colliders
     {
         private void OnCollisionStay(Collision other)
         {
+            if (Filter != null && !Filter.Filter(other.collider))
+            {
+                return;
+            }
+
             EventSource?.Raise(new Collision3DStayEvent(other));
         }
     }

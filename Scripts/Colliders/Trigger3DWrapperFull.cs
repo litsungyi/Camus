@@ -7,6 +7,11 @@ namespace Camus.Colliders
     {
         private void OnTriggerStay(Collider other)
         {
+            if (Filter != null && !Filter.Filter(other))
+            {
+                return;
+            }
+
             EventSource?.Raise(new Trigger3DStayEvent(other));
         }
     }

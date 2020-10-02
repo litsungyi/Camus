@@ -1,4 +1,5 @@
 ﻿using Camus.Colliders.Events;
+using Camus.Colliders.Filters;
 using UnityEngine;
 
 namespace Camus.Colliders
@@ -7,6 +8,12 @@ namespace Camus.Colliders
     [RequireComponent(typeof(Collider2D))]
     public class Trigger2DWrapperLight : BaseColliderWrapper
     {
+        public IColliderFilter2D Filter
+        {
+            get;
+            set;
+        }
+
         private void Awake()
         {
             Validate();
@@ -34,11 +41,21 @@ namespace Camus.Colliders
 
         private void OnTriggerEnter2D(Collider2D other)
         {
+            if (Filter != null && !Filter.Filter(other))
+            {
+                return;
+            }
+
             EventSource?.Raise(new Trigger2DEnterEvent(other));
         }
 
         private void OnTriggerExit2D(Collider2D other)
         {
+            if (Filter != null && !Filter.Filter(other))
+            {
+                return;
+            }
+
             EventSource?.Raise(new Trigger2DExitEvent(other));
         }
     }
