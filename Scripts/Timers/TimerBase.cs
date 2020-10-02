@@ -1,6 +1,7 @@
 ﻿using System;
 using Camus.Utilities;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Camus.Timers
 {
@@ -27,13 +28,7 @@ namespace Camus.Timers
             [SerializeField] private float duration = 0f;
             [SerializeField] private int count = 0;
 
-            public int Count
-            {
-                get
-                {
-                    return count;
-                }
-            }
+            public int Count => count;
 
             public bool Tick(float delta, float interval)
             {
@@ -59,7 +54,7 @@ namespace Camus.Timers
 
         #region Enum
 
-        public enum TimerStaus
+        public enum TimerStatus
         {
             None,
             Started,
@@ -73,20 +68,13 @@ namespace Camus.Timers
 
         [SerializeField] private TimerSetting setting;
         [ReadOnly, SerializeField] private TimerState state = null;
-        [ReadOnly, SerializeField] private TimerStaus status = TimerStaus.None;
+        [ReadOnly, SerializeField] private TimerStatus status = TimerStatus.None;
         private Action onTimer = null;
 
-        public TimerStaus Status
+        public TimerStatus Status
         {
-            get
-            {
-                return status;
-            }
-
-            private set
-            {
-                status = value;
-            }
+            get => status;
+            private set => status = value;
         }
 
         #endregion
@@ -110,10 +98,10 @@ namespace Camus.Timers
 
         public void StartTimer(Action onTimer = null)
         {
-            StartTimerWithDelta(0, onTimer);
+            StartTimer(0, onTimer);
         }
 
-        public void StartTimerWithDelta(float delta, Action onTimer = null)
+        public void StartTimer(float delta, Action onTimer = null)
         {
             this.onTimer = onTimer;
             RestartTimer(delta);
@@ -123,20 +111,20 @@ namespace Camus.Timers
         {
             SetEnable(true);
             state.Reset(delta);
-            Status = TimerStaus.Started;
+            Status = TimerStatus.Started;
         }
 
         public void StopTimer()
         {
             SetEnable(false);
             state.Reset();
-            Status = TimerStaus.Stopped;
+            Status = TimerStatus.Stopped;
         }
 
         public void PauseTimer()
         {
             SetEnable(false);
-            Status = TimerStaus.Paused;
+            Status = TimerStatus.Paused;
         }
 
         public void ResumeTimer()
@@ -147,7 +135,7 @@ namespace Camus.Timers
             }
 
             SetEnable(true);
-            Status = TimerStaus.Started;
+            Status = TimerStatus.Started;
         }
 
         #endregion
@@ -156,7 +144,7 @@ namespace Camus.Timers
 
         internal void TickAndTrigTimer(float delta)
         {
-            if (Status == TimerStaus.None)
+            if (Status == TimerStatus.None)
             {
                 SetEnable(false);
                 return;
@@ -199,8 +187,8 @@ namespace Camus.Timers
 
         private void OnValidate()
         {
-            Debug.Assert(setting.interval > 0, "Interval must > 0");
-            Debug.Assert(setting.maxCount >= 0, "Max count must >= 0");
+            Assert.IsTrue(setting.interval > 0, "Interval must > 0");
+            Assert.IsTrue(setting.maxCount >= 0, "Max count must >= 0");
         }
 
         #endregion

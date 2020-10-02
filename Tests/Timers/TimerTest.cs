@@ -32,7 +32,7 @@ namespace Camus.Timers
             GUILayout.BeginHorizontal();
 
             var status = timer.Status;
-            if (status == TimerBase.TimerStaus.None)
+            if (status == TimerBase.TimerStatus.None)
             {
                 if (GUILayout.Button("Start"))
                 {
@@ -40,7 +40,7 @@ namespace Camus.Timers
                 }
             }
 
-            if (status != TimerBase.TimerStaus.None)
+            if (status != TimerBase.TimerStatus.None)
             {
                 if (GUILayout.Button("Restart"))
                 {
@@ -48,7 +48,7 @@ namespace Camus.Timers
                 }
             }
 
-            if (status == TimerBase.TimerStaus.Started)
+            if (status == TimerBase.TimerStatus.Started)
             {
                 if (GUILayout.Button("Stop"))
                 {
@@ -56,7 +56,7 @@ namespace Camus.Timers
                 }
             }
 
-            if (status == TimerBase.TimerStaus.Started)
+            if (status == TimerBase.TimerStatus.Started)
             {
                 if (GUILayout.Button("Pause"))
                 {
@@ -64,7 +64,7 @@ namespace Camus.Timers
                 }
             }
 
-            if (status == TimerBase.TimerStaus.Paused)
+            if (status == TimerBase.TimerStatus.Paused)
             {
                 if (GUILayout.Button("Resume"))
                 {

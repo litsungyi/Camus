@@ -3,9 +3,10 @@ using UnityEngine;
 
 public class UpdatableTest : MonoBehaviour, IUpdatable
 {
-    public static void Create(UpdatableTest prefab, Transform parent)
+    public static void Create(UpdatableTest prefab, Transform parent, int count)
     {
-        var instance = Object.Instantiate<UpdatableTest>(prefab, parent);
+        var instance = Instantiate(prefab, parent);
+        instance.name = $"instance #{count}";
         App.Instance.Updater.Register(instance);
     }
 

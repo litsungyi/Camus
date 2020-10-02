@@ -2,9 +2,10 @@
 
 public class UpdateTest : MonoBehaviour
 {
-    public static void Create(UpdateTest prefab, Transform parent)
+    public static void Create(UpdateTest prefab, Transform parent, int count)
     {
-        Object.Instantiate<UpdateTest>(prefab, parent);
+        var instance = Instantiate(prefab, parent);
+        instance.name = $"instance #{count}";
     }
 
     private void Update()

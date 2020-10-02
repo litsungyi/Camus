@@ -15,11 +15,11 @@ public class UpdaterTester : MonoBehaviour
         {
             if (testUpdatable)
             {
-                UpdatableTest.Create(prefab1, transform);
+                UpdatableTest.Create(prefab1, transform, i);
             }
             else
             {
-                UpdateTest.Create(prefab2, transform);
+                UpdateTest.Create(prefab2, transform, i);
             }
         }
     }
