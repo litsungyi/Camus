@@ -14,14 +14,20 @@ namespace Camus.Validators
     {
         #region PostProcess
 
-        [PostProcessBuild]
-        public static void OnPostprocessBuild(BuildTarget target, string pathToBuiltProject)
+        [MenuItem("Camus/Validate All Null or Missing Reference")]
+        public static void ValidateAllNullOrMissingReference()
         {
             var checkPassed = CheckAllEnabledScenes() & CheckAllPrefabs();
             if (!checkPassed)
             {
                 throw new Exception(string.Format("[*] Null or Missing Reference check failed!"));
             }
+        }
+
+        [PostProcessBuild]
+        public static void OnPostprocessBuild(BuildTarget target, string pathToBuiltProject)
+        {
+            ValidateAllNullOrMissingReference();
         }
 
         #endregion
