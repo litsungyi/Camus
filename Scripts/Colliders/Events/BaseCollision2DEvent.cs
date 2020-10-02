@@ -3,14 +3,14 @@ using Camus.EventSystems;
 
 namespace Camus.Colliders.Events
 {
-    public abstract class BaseTriggerEvent : IEvent
+    public abstract class BaseCollision2DEvent : IEvent
     {
-        public Collider Other
+        public Collision2D Other
         {
             get;
         }
 
-        protected BaseTriggerEvent(Collider other)
+        protected BaseCollision2DEvent(Collision2D other)
         {
             Other = other;
         }

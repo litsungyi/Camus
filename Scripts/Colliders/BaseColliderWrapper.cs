@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Camus.Colliders
 {
-    public abstract class BaseTriggerWrapper : MonoBehaviour
+    public abstract class BaseColliderWrapper : MonoBehaviour
     {
         protected EventSourcing EventSource
         {

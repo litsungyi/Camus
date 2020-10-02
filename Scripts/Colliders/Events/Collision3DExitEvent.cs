@@ -2,9 +2,9 @@
 
 namespace Camus.Colliders.Events
 {
-    public class TriggerStayEvent : BaseTriggerEvent
+    public class Collision3DExitEvent : BaseCollision3DEvent
     {
-        public TriggerStayEvent(Collider other)
+        public Collision3DExitEvent(Collision other)
             : base(other)
         {
         }

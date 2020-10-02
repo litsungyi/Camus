@@ -2,9 +2,9 @@
 
 namespace Camus.Colliders.Events
 {
-    public class TriggerEnterEvent : BaseTriggerEvent
+    public class Collision2DEnterEvent : BaseCollision2DEvent
     {
-        public TriggerEnterEvent(Collider other)
+        public Collision2DEnterEvent(Collision2D other)
             : base(other)
         {
         }
