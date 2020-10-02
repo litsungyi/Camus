@@ -6,9 +6,11 @@ namespace Camus.Utilities
 {
     public static class RandomHelper
     {
-        public static int Next(int max, int min = 0)
+        private static Random random = new Random();
+
+        public static int Next(int value1, int value2 = 0)
         {
-            return new Random().Next(min, max);
+            return random.Next(Math.Min(value1, value2), Math.Max(value1, value2));
         }
 
         public static IList<T> Take<T>(IList<T> datas, int count)
