@@ -9,5 +9,7 @@ namespace Camus.UiUtilities
         void Hide(bool destroy, Action<bool> callback = null);
         void Demolish();
         GameObject GetGameObject();
+
+        void OnNotify(string state);
     }
 }

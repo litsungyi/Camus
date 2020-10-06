@@ -9,11 +9,24 @@ namespace Camus.UiUtilities
     {
         protected EventSourcing eventSourcing;
 
+        [SerializeField]
+        protected Animator animator;
+
         #region IDisplyable
 
         public virtual void Show(Action<bool> callback = null)
         {
-            UiManager.Instance.ShowUi(name, callback);
+            if (animator == null)
+            {
+                UiManager.Instance.ShowUi(name, callback);
+                return;
+            }
+
+            UiManager.Instance.ShowUi(name, (result) =>
+            {
+                animator.SetBool("Show", true);
+                callback?.Invoke(result);
+            });
         }
 
         public virtual void Hide(bool destroy = false, Action<bool> callback = null)
@@ -31,6 +44,24 @@ namespace Camus.UiUtilities
         public virtual void Demolish() => Destroy(gameObject);
 
         public virtual GameObject GetGameObject() => gameObject;
+
+        public void OnNotify(string state)
+        {
+            switch(state)
+            {
+                case "BeginShow":
+                    break;
+
+                case "EndShow":
+                    break;
+
+                case "BeginHide":
+                    break;
+
+                case "EndHide":
+                    break;
+            }
+        }
 
         #endregion
 
