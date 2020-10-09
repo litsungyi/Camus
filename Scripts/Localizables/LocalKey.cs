@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace Camus.Localizables
 {
@@ -8,7 +9,7 @@ namespace Camus.Localizables
     {
         internal LocalKey(string key)
         {
-            Key = key;
+            localKey = key;
             IsDirty = true;
         }
 
@@ -17,11 +18,10 @@ namespace Camus.Localizables
         //    return App.Instance.Localization.GetLocalKey(key);
         //}
 
-        public string Key
-        {
-            get;
-            private set;
-        }
+        [SerializeField]
+        private string localKey;
+
+        public string Key => localKey;
 
         public string Value
         {
