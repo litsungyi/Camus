@@ -54,7 +54,7 @@ public partial class App : Singleton<App>
     public void Initialize()
     {
         var text = Resources.Load<TextAsset>("Localization").text;
-        var datas = JsonConvert.DeserializeObject<IList<LocalData>>(text);
+        var datas = JsonConvert.DeserializeObject<List<LocalData>>(text);
         LocalizationManager = new LocalizationManager();
         LocalizationManager.Initialize(Language.Zh_Tw, datas);
 

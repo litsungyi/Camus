@@ -1,6 +1,9 @@
+using System;
+
 namespace Camus.Localizables
 {
     // Ref: ISO-639 Language Codes https://zh.wikipedia.org/wiki/ISO_639-1%E4%BB%A3%E7%A0%81%E8%A1%A8
+    [Serializable]
     public enum Language
     {
         None,
