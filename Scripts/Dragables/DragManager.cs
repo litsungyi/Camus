@@ -3,42 +3,122 @@ using UnityEngine;
 
 namespace Camus.Dragables
 {
+    public enum DraggableResult
+    {
+        Denied,
+        Accept,
+    }
+
+    public enum DraggedResult
+    {
+        None,
+        ResetPosition,
+    }
+
+    public enum DroppableResult
+    {
+        Denied,
+        Accept,
+    }
+
+    public enum SourceDropResult
+    {
+        None,
+        Destroy,
+        ResetPosition,
+        KeepPosition,
+    }
+
+    public enum TargetDropResult
+    {
+        Denied,
+        Accept,
+        Swap,
+    }
+
+    public enum DroppedResult
+    {
+        None,
+        ResetPosition,
+    }
+
     public static class DragManager
     {
         private class DragInfo
         {
-            public DragSource source;
-            public Vector3 originPosition;
+            public DragSource Source;
+            public Vector3 OriginPosition;
         }
 
         private static readonly Dictionary<GameObject, DragInfo> dragingObjects = new Dictionary<GameObject, DragInfo>();
 
         public static void BeginDrag(DragSource source)
         {
-            var dragInfo = new DragInfo()
+            if (source.IsDraggable() == DraggableResult.Accept)
             {
-                source = source,
-                originPosition = source.transform.position
-            };
+                AcceptBeginDrag();
+            }
+            else
+            {
+                DeniedBeginDrag();
+            }
 
-            dragingObjects.Add(source.gameObject, dragInfo);
+            void AcceptBeginDrag()
+            {
+                var dragInfo = new DragInfo
+                {
+                    Source = source,
+                    OriginPosition = source.transform.position
+                };
+
+                dragingObjects.Add(source.gameObject, dragInfo);
+            }
+            
+            void DeniedBeginDrag()
+            {
+                source.CancelDragging();
+            }
         }
 
-        public static void OnDrop(GameObject source, DragTarget target)
+        public static void Dragging(DragSource source, Vector3 position)
         {
-            source.transform.SetParent(target.transform);
-            source.transform.localPosition = target.dropPoint.localPosition;
+            source.transform.position = position;  // Input.mousePosition;
+        }
+
+        public static void OnDrop(GameObject source, DropTarget target)
+        {
+            if (!dragingObjects.TryGetValue(source, out DragInfo dragInfo))
+            {
+                return;
+            }
+
+            if (target.IsDroppable(dragInfo.Source) == DroppableResult.Denied)
+            {
+                // NOTE: Cannot move 
+                ResetPosition(dragInfo);
+                return;
+            }
+
+            dragInfo.Source.OnDropped(target);
             dragingObjects.Remove(source);
         }
 
         public static void EndDrag(DragSource source)
         {
-            DragInfo info;
-            if (dragingObjects.TryGetValue(source.gameObject, out info))
+            if (dragingObjects.TryGetValue(source.gameObject, out DragInfo dragInfo))
             {
-                source.transform.position = info.originPosition;
+                if (source.OnDragged() == DraggedResult.ResetPosition)
+                {
+                    ResetPosition(dragInfo);
+                }
+
                 dragingObjects.Remove(source.gameObject);
             }
+        }
+
+        private static void ResetPosition(DragInfo dragInfo)
+        {
+            dragInfo.Source.transform.position = dragInfo.OriginPosition;
         }
     }
 }
