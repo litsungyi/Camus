@@ -35,7 +35,7 @@ namespace Camus.EditorHelpers
 
         protected override bool OnDrawInspector()
         {
-			EditorGUI.BeginChangeCheck();
+            EditorGUI.BeginChangeCheck();
             var drawer = target as GizmoDrawer;
 
             var gizmoType = DrawType();
