@@ -10,12 +10,29 @@ namespace Camus.UiUtilities
     {
         [SerializeField, NotNull]
         private Button button;
+        private Text uiText;
+
+        private void Awake()
+        {
+            if (uiText == null)
+            {
+                uiText = button.GetComponentInChildren<Text>();
+            }
+        }
 
         public void SetOnClickedCallback(Action onClicked)
         {
             Assert.IsNotNull(onClicked);
 
             button.onClick.AddListener(() => onClicked?.Invoke());
+        }
+
+        public void SetText(string text)
+        {
+            if (uiText != null)
+            {
+                uiText.text = text;
+            }
         }
 
         public void SetColor(Color color)
