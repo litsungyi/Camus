@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Camus.Utilities;
 
 namespace Camus.Dragables
 {
@@ -10,7 +11,7 @@ namespace Camus.Dragables
         [SerializeField]
         protected Image image;
 
-        [SerializeField]
+        [ReadOnly, SerializeField]
         protected bool dragging;
 
         public bool IsDragging
@@ -18,10 +19,16 @@ namespace Camus.Dragables
             get => dragging;
             set
             {
-                image.raycastTarget = value;
-                dragging = !value;
+                image.raycastTarget = !value;
+                dragging = value;
             }
         }
+
+        public DropTarget Target
+        {
+            get;
+            private set;
+        } 
 
         #region IBeginDragHandler
 
@@ -39,7 +46,7 @@ namespace Camus.Dragables
         {
             if (IsDragging)
             {
-                DragManager.Dragging(this, eventData.worldPosition);
+                DragManager.Dragging(this, eventData.position);
             }
         }
 
@@ -51,8 +58,8 @@ namespace Camus.Dragables
         {
             if (IsDragging)
             {
-                DragManager.EndDrag(this);
                 IsDragging = false;
+                DragManager.EndDrag(this);
             }
         }
 

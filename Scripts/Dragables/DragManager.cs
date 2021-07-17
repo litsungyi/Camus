@@ -85,6 +85,19 @@ namespace Camus.Dragables
             source.transform.position = position;  // Input.mousePosition;
         }
 
+        public static void EndDrag(DragSource source)
+        {
+            if (dragingObjects.TryGetValue(source.gameObject, out DragInfo dragInfo))
+            {
+                if (source.OnDragged() == DraggedResult.ResetPosition)
+                {
+                    ResetPosition(dragInfo);
+                }
+
+                dragingObjects.Remove(source.gameObject);
+            }
+        }
+
         public static void OnDrop(GameObject source, DropTarget target)
         {
             if (!dragingObjects.TryGetValue(source, out DragInfo dragInfo))
@@ -100,20 +113,7 @@ namespace Camus.Dragables
             }
 
             dragInfo.Source.OnDropped(target);
-            dragingObjects.Remove(source);
-        }
-
-        public static void EndDrag(DragSource source)
-        {
-            if (dragingObjects.TryGetValue(source.gameObject, out DragInfo dragInfo))
-            {
-                if (source.OnDragged() == DraggedResult.ResetPosition)
-                {
-                    ResetPosition(dragInfo);
-                }
-
-                dragingObjects.Remove(source.gameObject);
-            }
+            dragingObjects.Remove(source.gameObject);
         }
 
         private static void ResetPosition(DragInfo dragInfo)
