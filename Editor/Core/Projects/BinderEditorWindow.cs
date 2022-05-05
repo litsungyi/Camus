@@ -172,7 +172,7 @@ namespace {0}
 
         private string ParseName(string text)
         {
-            return text.Replace(" ", "_").Replace("/", "_");
+            return text.Replace(" ", "_").Replace("/", "_").Replace("-", "_").Replace(".", "_").Replace(",", "_");
         }
 
         private string ParsePath(string path)

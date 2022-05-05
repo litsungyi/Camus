@@ -46,17 +46,19 @@ public partial class App : Singleton<App>
 
     public void Awake()
     {
+        Initialize();
+
 #if UNITY_EDITOR
         EnableFps(true);
 #endif
     }
 
-    public void Initialize()
+    private void Initialize()
     {
-        var text = Resources.Load<TextAsset>("Localization").text;
-        var datas = JsonConvert.DeserializeObject<List<LocalData>>(text);
-        LocalizationManager = new LocalizationManager();
-        LocalizationManager.Initialize(Language.Zh_Tw, datas);
+        // var text = Resources.Load<TextAsset>("Localization").text;
+        // var datas = JsonConvert.DeserializeObject<List<LocalData>>(text);
+        // LocalizationManager = new LocalizationManager();
+        // LocalizationManager.Initialize(Language.Zh_Tw, datas);
 
         SceneController = new SceneController();
     }

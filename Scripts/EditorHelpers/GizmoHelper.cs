@@ -1,12 +1,15 @@
+#if UNITY_EDITOR
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+#endif
 
 namespace Camus.EditorHelpers
 {
     public static class GizmoHelper
     {
+#if UNITY_EDITOR
         public static void DrawCollider(Collider collider, Color gizmosColor)
         {
             if (collider == null)
@@ -32,6 +35,7 @@ namespace Camus.EditorHelpers
             }
         }
 
+        [System.Diagnostics.Conditional("UNITY_EDITOR")]
         public static void DrawSolidCollider(Collider collider, Color gizmosColor)
         {
             if (collider == null)
@@ -59,6 +63,7 @@ namespace Camus.EditorHelpers
             }
         }
 
+        [System.Diagnostics.Conditional("UNITY_EDITOR")]
         public static void DrawLabel(string content, Vector3 position, int fontSize, Color fontColor, Texture2D background)
         {
             GUIStyle style = new GUIStyle(GUI.skin.label);
@@ -70,6 +75,7 @@ namespace Camus.EditorHelpers
             Handles.Label(position, content, style);
         }
 
+        [System.Diagnostics.Conditional("NOT_UNITY_EDITOR")]
         public static void DrawDisc(Transform transform, float radius, Color color, Vector3 normal)
         {
             Handles.color = color;
@@ -78,6 +84,7 @@ namespace Camus.EditorHelpers
             Handles.DrawWireDisc(transform.position, normal, size);
         }
 
+        [System.Diagnostics.Conditional("UNITY_EDITOR")]
         public static void DrawSolidDisc(Transform transform, float size, Color color, Vector3 normal)
         {
             Handles.color = color;
@@ -85,11 +92,13 @@ namespace Camus.EditorHelpers
             Handles.DrawSolidDisc(transform.position, normal, size);
         }
 
+        [System.Diagnostics.Conditional("UNITY_EDITOR")]
         public static void DrawIcon(Vector3 position, string icon)
         {
             Gizmos.DrawIcon(position, icon);
         }
 
+        [System.Diagnostics.Conditional("UNITY_EDITOR")]
         public static void DrawPath(IList<Vector3> positions, Color color, int width, float fixHeight)
         {
             Gizmos.color = color;
@@ -102,6 +111,7 @@ namespace Camus.EditorHelpers
         }
 
         // Ref: http://answers.unity3d.com/questions/1139985/gizmosdrawline-thickens.html
+        [System.Diagnostics.Conditional("UNITY_EDITOR")]
         public static void DrawLine(Vector3 p1, Vector3 p2, int width)
         {
             if (width <= 1)
@@ -129,5 +139,6 @@ namespace Camus.EditorHelpers
                 }
             }
         }
+#endif
     }
 }
