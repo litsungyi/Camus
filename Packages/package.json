@@ -1,0 +1,21 @@
+{
+    "name": "com.litsungyi.camus",
+    "version": "0.0.1",
+    "displayName": "Camus",
+    "description": "A simple game framework",
+    "unity": "2020.3",
+    "documentationUrl": "https://example.com/",
+    "changelogUrl": "https://example.com/changelog.html",
+    "licensesUrl": "https://example.com/licensing.html",
+    "dependencies": {
+      "com.neuecc.unirx": "7.1.0"
+   },
+   "keywords": [
+    ],
+    "author": {
+      "name": "litsungyi",
+      "email": "litsungyi@gmail.com",
+      "url": "https://tsungyi.li"
+    }
+  }
+  
