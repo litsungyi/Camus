@@ -1,4 +1,4 @@
-﻿namespace Camus.Timers
+namespace Camus.Timers
 {
     public abstract class TimerUpdatableBase : TimerBase
     {

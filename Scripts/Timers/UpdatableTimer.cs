@@ -1,4 +1,4 @@
-﻿using Camus.Updatables;
+using Camus.Updatables;
 
 namespace Camus.Timers
 {

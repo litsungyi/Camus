@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using Camus.EventSystems;
 
 namespace Camus.Colliders.Events
