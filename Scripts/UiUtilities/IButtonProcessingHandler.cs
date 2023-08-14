@@ -1,4 +1,4 @@
-﻿namespace Camus.UiUtilities
+namespace Camus.UiUtilities
 {
     public interface IButtonProcessingHandler
     {

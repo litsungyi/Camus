@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.Collections.Generic;
 using Camus.Updatables;
 using Camus.EventSystems;

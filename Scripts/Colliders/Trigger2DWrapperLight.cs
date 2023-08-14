@@ -1,4 +1,4 @@
-﻿using Camus.Colliders.Events;
+using Camus.Colliders.Events;
 using Camus.Colliders.Filters;
 using UnityEngine;
 
