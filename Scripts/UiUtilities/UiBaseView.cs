@@ -1,4 +1,4 @@
-﻿using Camus.EventSystems;
+using Camus.EventSystems;
 using UnityEngine;
 
 namespace Camus.UiUtilities

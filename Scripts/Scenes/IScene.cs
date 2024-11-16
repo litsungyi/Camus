@@ -1,4 +1,4 @@
-﻿namespace Camus.Scenes
+namespace Camus.Scenes
 {
     public interface IScene
     {

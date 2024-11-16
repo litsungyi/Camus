@@ -1,4 +1,4 @@
-﻿// Ref. http://wiki.unity3d.com/index.php/CreateScriptableObjectAsset
+// Ref. http://wiki.unity3d.com/index.php/CreateScriptableObjectAsset
 
 using System.IO;
 using UnityEditor;
