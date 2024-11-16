@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Camus.EventSystems;
 using Camus.Draggables.Events;
 using UnityEngine.EventSystems;

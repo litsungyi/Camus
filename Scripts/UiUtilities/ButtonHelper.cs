@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Camus.Validators;
 using UnityEngine;
 using UnityEngine.Assertions;

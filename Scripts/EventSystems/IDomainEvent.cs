@@ -1,4 +1,4 @@
-﻿namespace Camus.EventSystems
+namespace Camus.EventSystems
 {
     public interface IDomainEvent
     {

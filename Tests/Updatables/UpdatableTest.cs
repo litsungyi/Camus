@@ -1,4 +1,4 @@
-﻿using Camus.Updatables;
+using Camus.Updatables;
 using UnityEngine;
 
 public class UpdatableTest : MonoBehaviour, IUpdatable

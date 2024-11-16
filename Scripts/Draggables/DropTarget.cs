@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace Camus.Draggables
@@ -19,7 +19,7 @@ namespace Camus.Draggables
             {
                 return;
             }
-                
+
             DragManager.Drop(eventData.pointerDrag, this);
         }
 
