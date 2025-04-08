@@ -18,18 +18,18 @@ namespace Camus.Scenes
         private IEnumerator DoLoadSceneAsync(SceneInfo sceneInfo)
         {
             currentScene?.OnSceneUnloaded();
-            var oldScene = SceneManager.GetActiveScene();
-            var unloading = SceneManager.UnloadSceneAsync(oldScene);
-            yield return WaitUntilDone(unloading);
+            // var oldScene = SceneManager.GetActiveScene();
+            // var unloading = SceneManager.UnloadSceneAsync(oldScene);
+            // yield return WaitUntilDone(unloading);
 
             var loading = SceneManager.LoadSceneAsync(sceneInfo.Name);
             yield return WaitUntilDone(loading);
 
             var newScene = SceneManager.GetActiveScene();
-            currentScene = newScene.GetRootGameObjects().FirstOrDefault(s => s.GetComponent<IScene>() != null)?.GetComponent<IScene>();
+            currentScene = newScene.GetRootGameObjects().FirstOrDefault(s => s.GetComponent<IScene>() != null).GetComponent<IScene>();
             currentScene?.OnSceneLoaded();
 
-            IEnumerator WaitUntilDone(AsyncOperation async)
+            static IEnumerator WaitUntilDone(AsyncOperation async)
             {
                 if (async != null)
                 {
