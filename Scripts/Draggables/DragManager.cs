@@ -26,7 +26,6 @@ namespace Camus.Draggables
 
                 case DraggableResult.Denied:
                 default:
-                    DeniedBeginDrag();
                     break;
             }
 
@@ -43,17 +42,12 @@ namespace Camus.Draggables
                 source.OnBeginDragging();
                 EventDispatcher.Raise(new BeginDragEvent(source));
             }
-
-            void DeniedBeginDrag()
-            {
-                source.IsDragging = false;
-                source.OnCancelDragging();
-            }
         }
 
         public static void EndDrag(DragSource source, PointerEventData eventData)
         {
-            if (!source.IsDragging || !dragingObjects.TryGetValue(source.gameObject, out DragInfo dragInfo))
+            if (!source.IsDragging ||
+                !dragingObjects.TryGetValue(source.gameObject, out DragInfo dragInfo))
             {
                 return;
             }
@@ -69,11 +63,28 @@ namespace Camus.Draggables
                     break;
             }
 
-            dragingObjects.Remove(source.gameObject);
+            OnEndDrag(); // OnCancelDrag()
 
-            source.IsDragging = false;
-            source.OnEndDragging();
-            EventDispatcher.Raise(new EndDragEvent(source));
+            void ResetPosition(DragInfo dragInfo)
+            {
+                dragInfo.Source.transform.position = dragInfo.OriginPosition;
+            }
+
+            void OnEndDrag()
+            {
+                dragingObjects.Remove(source.gameObject);
+                source.IsDragging = false;
+                source.OnEndDragging();
+                EventDispatcher.Raise(new EndDragEvent(source));
+            }
+
+            void OnCancelDrag()
+            {
+                dragingObjects.Remove(source.gameObject);
+                source.IsDragging = false;
+                source.OnCancelDragging();
+                EventDispatcher.Raise(new EndDragEvent(source));
+            }
         }
 
         public static void Dragging(DragSource source, PointerEventData eventData)
@@ -106,23 +117,26 @@ namespace Camus.Draggables
 
                 case DroppableResult.Denied:
                 default:
+                    DenyDrop();
                     break;
             }
 
             void AcceptDrop()
             {
                 dragingObjects.Remove(sourceObject);
-
                 dragInfo.Source.IsDragging = false;
                 dragInfo.Source.OnDropped(target);
                 target.OnDropped(dragInfo.Source);
                 EventDispatcher.Raise(new DropEvent(dragInfo.Source, target));
             }
-        }
 
-        private static void ResetPosition(DragInfo dragInfo)
-        {
-            dragInfo.Source.transform.position = dragInfo.OriginPosition;
+            void DenyDrop()
+            {
+                dragingObjects.Remove(sourceObject);
+                dragInfo.Source.IsDragging = false;
+                dragInfo.Source.OnCancelDragging();
+                EventDispatcher.Raise(new EndDragEvent(dragInfo.Source));
+            }
         }
     }
 }

@@ -1,7 +1,5 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
-using Camus.Utilities;
 
 namespace Camus.Draggables
 {
