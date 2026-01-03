@@ -30,18 +30,12 @@ public class DataService
             {
                 File.Copy( filePath, dbPath );
             }
-            
+
             _connection = new SQLiteConnection( dbPath, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create );
         }
         else
         {
             _connection = new SQLiteConnection( dbPath, SQLiteOpenFlags.ReadWrite );
         }
-    }
-    
-    public DataService( string DatabaseName, string password )
-        : this( DatabaseName )
-    {
-        _connection
     }
 }
