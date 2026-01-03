@@ -2,8 +2,9 @@
 
 using UnityEditor;
 using UnityEngine;
+using Camus.Utilities;
 
-namespace Camus.Utilities
+namespace Camus.Drawers
 {
     [CustomPropertyDrawer(typeof(ReadOnlyAttribute))]
     public class ReadOnlyDrawer : PropertyDrawer

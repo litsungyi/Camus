@@ -28,9 +28,13 @@ namespace Camus
 
         public static void CreateAsset<T>(string path) where T : ScriptableObject
         {
-            T asset = ScriptableObject.CreateInstance<T>();
-            string assetPathAndName = AssetDatabase.GenerateUniqueAssetPath(path + "/New " + typeof(T).Name + ".asset");
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
 
+            T asset = ScriptableObject.CreateInstance<T>();
+            string assetPathAndName = AssetDatabase.GenerateUniqueAssetPath(Path.Join(path, typeof(T).Name + ".asset"));
             AssetDatabase.CreateAsset(asset, assetPathAndName);
 
             AssetDatabase.SaveAssets();
