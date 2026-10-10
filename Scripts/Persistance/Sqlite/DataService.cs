@@ -1,10 +1,6 @@
 using SQLite4Unity3d;
 using UnityEngine;
-#if !UNITY_EDITOR
-using System.Collections;
-using System.IO;
-#endif
-using System.Collections.Generic;
+using UnityEngine.Networking;
 using System.IO;
 
 public class DataService
@@ -19,12 +15,21 @@ public class DataService
         {
             if ( filePath.Contains( "://" ) )
             {
-                WWW www = new WWW( filePath );
-                while ( !www.isDone )
+                // Android/WebGL: StreamingAssets is inside the archive, read it via UnityWebRequest
+                using ( var request = UnityWebRequest.Get( filePath ) )
                 {
-                }
+                    request.SendWebRequest();
+                    while ( !request.isDone )
+                    {
+                    }
 
-                File.WriteAllBytes( dbPath, www.bytes );
+                    if ( request.result != UnityWebRequest.Result.Success )
+                    {
+                        throw new IOException( $"Failed to load database {filePath}: {request.error}" );
+                    }
+
+                    File.WriteAllBytes( dbPath, request.downloadHandler.data );
+                }
             }
             else
             {
