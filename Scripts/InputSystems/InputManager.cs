@@ -201,6 +201,7 @@ namespace Camus.Inputs
                     break;
 
                 case TouchPhase.Ended:
+                case TouchPhase.Canceled:
                     if (buttonStatus.EndPress(Time.time) < LongPressThreshold)
                     {
                         var pressEvent = new PressEvent(button, buttonStatus.CurrentPosition);
