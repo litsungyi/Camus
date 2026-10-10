@@ -13,9 +13,9 @@ namespace Camus.Utilities
 
         public Range(int begin, int end)
         {
-            if (Begin > End)
+            if (begin > end)
             {
-                throw new Exception("Range Begin must greater than End!");
+                throw new ArgumentException("Range Begin must not be greater than End!");
             }
 
             Begin = begin;
@@ -101,7 +101,7 @@ namespace Camus.Utilities
 
             public bool MoveNext()
             {
-                if (Current >= Range.End)
+                if (Current + 1 >= Range.End)
                 {
                     return false;
                 }
