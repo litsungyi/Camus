@@ -37,20 +37,30 @@ namespace Camus.EditorHelpers
         {}
 
 #if UNITY_EDITOR
+        // Draw once with the selected color, OnDrawGizmosSelected would draw a second time on top
         private void OnDrawGizmos()
         {
             if (enabled)
             {
-                DraeGizmo(false);
+                DrawGizmo(IsSelected());
             }
         }
 
-        private void OnDrawGizmosSelected()
+        // Matches OnDrawGizmosSelected: this object or one of its parents is selected
+        private bool IsSelected()
         {
-            DraeGizmo(true);
+            foreach (var selected in UnityEditor.Selection.transforms)
+            {
+                if (transform.IsChildOf(selected))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
-        private void DraeGizmo(bool selected)
+        private void DrawGizmo(bool selected)
         {
             var color = selected ? gizmoSelectedColor : gizmoColor;
             switch (gizmoType)

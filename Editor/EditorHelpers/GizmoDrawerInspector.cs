@@ -80,13 +80,13 @@ namespace Camus.EditorHelpers
                     case GizmoType.SolidCollider:
                         colliderField.objectReferenceValue = EditorGUILayout.ObjectField("Collider", colliderField.objectReferenceValue, typeof(Collider), true);
                         gizmoColorField.colorValue = EditorGUILayout.ColorField("Gizmo Color", gizmoColorField.colorValue);
-                        gizmoSelectedColorField.colorValue = EditorGUILayout.ColorField("Gizmo Color", gizmoSelectedColorField.colorValue);
+                        gizmoSelectedColorField.colorValue = EditorGUILayout.ColorField("Gizmo Selected Color", gizmoSelectedColorField.colorValue);
                         break;
 
                     case GizmoType.Disc:
                     case GizmoType.SolidDisc:
                         gizmoColorField.colorValue = EditorGUILayout.ColorField("Gizmo Color", gizmoColorField.colorValue);
-                        gizmoSelectedColorField.colorValue = EditorGUILayout.ColorField("Gizmo Color", gizmoSelectedColorField.colorValue);
+                        gizmoSelectedColorField.colorValue = EditorGUILayout.ColorField("Gizmo Selected Color", gizmoSelectedColorField.colorValue);
                         radiusField.floatValue = EditorGUILayout.FloatField("Radius", radiusField.floatValue);
                         break;
 

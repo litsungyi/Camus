@@ -12,55 +12,54 @@ namespace Camus.EditorHelpers
 #if UNITY_EDITOR
         public static void DrawCollider(Collider collider, Color gizmosColor)
         {
-            if (collider == null)
-            {
-                return;
-            }
-
-            if (collider is BoxCollider boxCollider)
-            {
-                Gizmos.color = gizmosColor;
-                Gizmos.matrix = collider.transform.localToWorldMatrix;
-
-                Gizmos.DrawWireCube(boxCollider.center, boxCollider.size);
-            }
-            else if (collider is SphereCollider sphereCollider)
-            {
-                Gizmos.color = gizmosColor;
-                Gizmos.matrix = Matrix4x4.TRS(collider.transform.position, collider.transform.rotation, Vector3.one);
-
-                var center = new Vector3(sphereCollider.center.x * collider.transform.lossyScale.x, sphereCollider.center.y * collider.transform.lossyScale.y, sphereCollider.center.z * collider.transform.lossyScale.z);
-                var size = Mathf.Max(collider.transform.lossyScale.x, collider.transform.lossyScale.y, collider.transform.lossyScale.z) * sphereCollider.radius;
-                Gizmos.DrawWireSphere(center, size);
-            }
+            DrawCollider(collider, gizmosColor, false);
         }
 
-        [System.Diagnostics.Conditional("UNITY_EDITOR")]
         public static void DrawSolidCollider(Collider collider, Color gizmosColor)
+        {
+            DrawCollider(collider, gizmosColor, true);
+        }
+
+        private static void DrawCollider(Collider collider, Color gizmosColor, bool solid)
         {
             if (collider == null)
             {
                 return;
             }
 
-            if (collider is BoxCollider)
-            {
-                Gizmos.color = gizmosColor;
-                Gizmos.matrix = collider.transform.localToWorldMatrix;
+            var transform = collider.transform;
+            var matrix = Gizmos.matrix;
+            Gizmos.color = gizmosColor;
 
-                var boxCollider = collider as BoxCollider;
-                Gizmos.DrawCube(boxCollider.center, boxCollider.size);
-            }
-            else if (collider is SphereCollider)
+            if (collider is BoxCollider boxCollider)
             {
-                Handles.color = gizmosColor;
-                Gizmos.matrix = Matrix4x4.TRS(collider.transform.position, collider.transform.rotation, Vector3.one);
-
-                var sphereCollider = collider as SphereCollider;
-                var center = new Vector3(sphereCollider.center.x * collider.transform.lossyScale.x, sphereCollider.center.y * collider.transform.lossyScale.y, sphereCollider.center.z * collider.transform.lossyScale.z);
-                var size = Mathf.Max(collider.transform.lossyScale.x, collider.transform.lossyScale.y, collider.transform.lossyScale.z) * sphereCollider.radius;
-                Handles.DrawSolidDisc(sphereCollider.transform.position + center, Vector3.up, size);
+                Gizmos.matrix = transform.localToWorldMatrix;
+                if (solid)
+                {
+                    Gizmos.DrawCube(boxCollider.center, boxCollider.size);
+                }
+                else
+                {
+                    Gizmos.DrawWireCube(boxCollider.center, boxCollider.size);
+                }
             }
+            else if (collider is SphereCollider sphereCollider)
+            {
+                // A sphere collider stays round, Unity scales its radius by the largest axis
+                Gizmos.matrix = Matrix4x4.TRS(transform.position, transform.rotation, Vector3.one);
+                var center = Vector3.Scale(sphereCollider.center, transform.lossyScale);
+                var radius = GetMaxScale(transform) * sphereCollider.radius;
+                if (solid)
+                {
+                    Gizmos.DrawSphere(center, radius);
+                }
+                else
+                {
+                    Gizmos.DrawWireSphere(center, radius);
+                }
+            }
+
+            Gizmos.matrix = matrix;
         }
 
         [System.Diagnostics.Conditional("UNITY_EDITOR")]
@@ -79,17 +78,20 @@ namespace Camus.EditorHelpers
         public static void DrawDisc(Transform transform, float radius, Color color, Vector3 normal)
         {
             Handles.color = color;
-            Gizmos.matrix = transform.localToWorldMatrix;
-            var size = Mathf.Max(transform.lossyScale.x, transform.lossyScale.y, transform.lossyScale.z) * radius;
-            Handles.DrawWireDisc(transform.position, normal, size);
+            Handles.DrawWireDisc(transform.position, normal, GetMaxScale(transform) * radius);
         }
 
         [System.Diagnostics.Conditional("UNITY_EDITOR")]
-        public static void DrawSolidDisc(Transform transform, float size, Color color, Vector3 normal)
+        public static void DrawSolidDisc(Transform transform, float radius, Color color, Vector3 normal)
         {
             Handles.color = color;
-            Gizmos.matrix = transform.localToWorldMatrix;
-            Handles.DrawSolidDisc(transform.position, normal, size);
+            Handles.DrawSolidDisc(transform.position, normal, GetMaxScale(transform) * radius);
+        }
+
+        private static float GetMaxScale(Transform transform)
+        {
+            var scale = transform.lossyScale;
+            return Mathf.Max(Mathf.Abs(scale.x), Mathf.Abs(scale.y), Mathf.Abs(scale.z));
         }
 
         [System.Diagnostics.Conditional("UNITY_EDITOR")]
