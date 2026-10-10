@@ -2,7 +2,8 @@
     "name": "Camus",
     "rootNamespace": "",
     "references": [
-        "SQLite4Unity3d"
+        "SQLite4Unity3d",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -9,7 +9,8 @@
     "licensesUrl": "https://example.com/licensing.html",
     "dependencies": {
       "com.unity.ugui": "2.0.0",
-      "com.unity.nuget.newtonsoft-json": "3.2.1"
+      "com.unity.nuget.newtonsoft-json": "3.2.1",
+      "com.unity.inputsystem": "1.19.0"
    },
    "keywords": [
     ],

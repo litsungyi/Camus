@@ -1,9 +1,10 @@
-using System.Data;
 using System.Collections.Generic;
 using Camus.Updatables;
 using Camus.EventSystems;
 using Camus.Inputs.Events;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
 
 namespace Camus.Inputs
 {
@@ -16,23 +17,6 @@ namespace Camus.Inputs
             Middle = 2,
             TouchBaseIndex = 10,
         }
-
-        public IList<string> PredefineAxisKey = new List<string>()
-        {
-            "Horizontal",
-            "Vertical",
-            "Fire1",
-            "Fire2",
-            "Fire3",
-            "Jump",
-            "Mouse X",
-            "Mouse Y",
-            "Mouse ScrollWheel",
-            "Submit",
-            "Cancel",
-        };
-
-        private HashSet<string> registedInputKey = new HashSet<string>();
 
         private class ButtonStatus
         {
@@ -98,6 +82,11 @@ namespace Camus.Inputs
             }
         }
 
+        // Actions named after the legacy Input Manager axes, with its default bindings
+        private readonly Dictionary<string, InputAction> predefinedActions = new Dictionary<string, InputAction>();
+
+        private readonly Dictionary<string, InputAction> registedActions = new Dictionary<string, InputAction>();
+
         private ButtonStatus mouseState = new ButtonStatus();
 
         public float LongPressThreshold
@@ -106,144 +95,230 @@ namespace Camus.Inputs
             set;
         } = 0.5f;
 
+        public IEnumerable<string> PredefinedInputKeys => predefinedActions.Keys;
+
         private Dictionary<Button, ButtonStatus> buttonStatuses = new Dictionary<Button, ButtonStatus>();
 
         private void Awake()
         {
-            foreach (var axisKey in PredefineAxisKey)
+            AddPredefined(CreateAxis("Horizontal", "<Gamepad>/leftStick/x", ("<Keyboard>/a", "<Keyboard>/d"), ("<Keyboard>/leftArrow", "<Keyboard>/rightArrow")));
+            AddPredefined(CreateAxis("Vertical", "<Gamepad>/leftStick/y", ("<Keyboard>/s", "<Keyboard>/w"), ("<Keyboard>/downArrow", "<Keyboard>/upArrow")));
+            AddPredefined(CreateButton("Fire1", "<Keyboard>/leftCtrl", "<Mouse>/leftButton", "<Gamepad>/buttonSouth"));
+            AddPredefined(CreateButton("Fire2", "<Keyboard>/leftAlt", "<Mouse>/rightButton", "<Gamepad>/buttonEast"));
+            AddPredefined(CreateButton("Fire3", "<Keyboard>/leftShift", "<Mouse>/middleButton", "<Gamepad>/buttonWest"));
+            AddPredefined(CreateButton("Jump", "<Keyboard>/space", "<Gamepad>/buttonNorth"));
+            // Legacy mouse axes use sensitivity 0.1, scroll is 1 per notch with the default scrollDeltaBehavior
+            AddPredefined(CreateValue("Mouse X", "<Mouse>/delta/x", "scale(factor=0.1)"));
+            AddPredefined(CreateValue("Mouse Y", "<Mouse>/delta/y", "scale(factor=0.1)"));
+            AddPredefined(CreateValue("Mouse ScrollWheel", "<Mouse>/scroll/y", "scale(factor=0.1)"));
+            AddPredefined(CreateButton("Submit", "<Keyboard>/enter", "<Keyboard>/numpadEnter", "<Gamepad>/buttonSouth"));
+            AddPredefined(CreateButton("Cancel", "<Keyboard>/escape", "<Gamepad>/buttonEast"));
+
+            void AddPredefined(InputAction action)
             {
-                registedInputKey.Add(axisKey);
+                predefinedActions.Add(action.name, action);
+                RegisterInput(action.name, action);
             }
+        }
+
+        private void OnDestroy()
+        {
+            foreach (var action in predefinedActions.Values)
+            {
+                action.Dispose();
+            }
+
+            predefinedActions.Clear();
+            registedActions.Clear();
         }
 
         void IUpdatable.OnUpdate(float duration)
         {
-            if (Input.mousePresent)
+            var mouse = Mouse.current;
+            if (mouse != null)
             {
-                ProcessMouse(Button.Primary);
-                ProcessMouse(Button.Secondary);
-                ProcessMouse(Button.Middle);
+                var position = (Vector3) mouse.position.ReadValue();
+                ProcessButton(Button.Primary, mouse.leftButton, position);
+                ProcessButton(Button.Secondary, mouse.rightButton, position);
+                ProcessButton(Button.Middle, mouse.middleButton, position);
 
-                mouseState.TickPosition(Input.mousePosition);
+                mouseState.TickPosition(position);
                 var movingEvent = new MovingEvent(Button.Primary, mouseState.CurrentPosition, mouseState.Direction, mouseState.Distance);
                 EventDispatcher.Raise(movingEvent);
             }
 
-            for (var count = 0; count < Input.touchCount; ++count)
+            var touchscreen = Touchscreen.current;
+            if (touchscreen != null)
             {
-                ProcessTouch(count);
+                var touches = touchscreen.touches;
+                for (var index = 0; index < touches.Count; ++index)
+                {
+                    ProcessTouch(index, touches[index]);
+                }
             }
 
             ProcessInput();
         }
 
-        private void ProcessMouse(Button button)
+        private ButtonStatus GetButtonStatus(Button button)
         {
-            var index = (int) button;
-            if (!buttonStatuses.ContainsKey(button))
+            if (!buttonStatuses.TryGetValue(button, out var buttonStatus))
             {
-                buttonStatuses.Add(button, new ButtonStatus());
+                buttonStatus = new ButtonStatus();
+                buttonStatuses.Add(button, buttonStatus);
             }
 
-            var buttonStatus = buttonStatuses[button];
-            buttonStatus.TickPosition(Input.mousePosition);
+            return buttonStatus;
+        }
 
-            if (Input.GetMouseButtonDown(index))
+        private void ProcessButton(Button button, ButtonControl control, Vector3 position)
+        {
+            var buttonStatus = GetButtonStatus(button);
+            buttonStatus.TickPosition(position);
+
+            if (control.wasPressedThisFrame)
             {
-                if (!buttonStatus.Pressed)
-                {
-                    buttonStatus.BeginPress(Time.time);
-                    var beginPressEvent = new BeginPressEvent(button, buttonStatus.CurrentPosition);
-                    EventDispatcher.Raise(beginPressEvent);
-                }
+                BeginPress(button, buttonStatus);
             }
-            else if (Input.GetMouseButtonUp(index))
+            else if (control.wasReleasedThisFrame)
             {
-                if (buttonStatus.EndPress(Time.time) < LongPressThreshold)
-                {
-                    var pressEvent = new PressEvent(button, buttonStatus.CurrentPosition);
-                    EventDispatcher.Raise(pressEvent);
-                }
-                else
-                {
-                    var longPressEvent = new LongPressEvent(button, buttonStatus.CurrentPosition);
-                    EventDispatcher.Raise(longPressEvent);
-                }
-
-
-                var endPressEvent = new EndPressEvent(button, buttonStatus.CurrentPosition);
-                EventDispatcher.Raise(endPressEvent);
+                EndPress(button, buttonStatus);
             }
         }
 
-        private void ProcessTouch(int index)
+        private void ProcessTouch(int index, TouchControl touch)
         {
-            Touch touch = Input.GetTouch(index);
-            Button button = (Button) (Button.TouchBaseIndex + index);
-            if (!buttonStatuses.ContainsKey(button))
+            var press = touch.press;
+            if (!press.isPressed && !press.wasReleasedThisFrame)
             {
-                buttonStatuses.Add(button, new ButtonStatus());
+                return;
             }
-            var buttonStatus = buttonStatuses[button];
-            buttonStatus.TickPosition(touch.position);
 
-            switch (touch.phase)
+            var button = (Button) (Button.TouchBaseIndex + index);
+            var buttonStatus = GetButtonStatus(button);
+            buttonStatus.TickPosition(touch.position.ReadValue());
+
+            if (press.wasPressedThisFrame)
             {
-                case TouchPhase.Began:
-                    buttonStatus.BeginPress(Time.time);
-                    var beginPressEvent = new BeginPressEvent(button, buttonStatus.CurrentPosition);
-                    EventDispatcher.Raise(beginPressEvent);
-                    break;
-
-                case TouchPhase.Moved:
-                    var movingEvent = new MovingEvent(button, buttonStatus.CurrentPosition, buttonStatus.Direction, buttonStatus.Distance);
-                    EventDispatcher.Raise(movingEvent);
-                    break;
-
-                case TouchPhase.Ended:
-                case TouchPhase.Canceled:
-                    if (buttonStatus.EndPress(Time.time) < LongPressThreshold)
-                    {
-                        var pressEvent = new PressEvent(button, buttonStatus.CurrentPosition);
-                        EventDispatcher.Raise(pressEvent);
-                    }
-                    else
-                    {
-                        var longPressEvent = new LongPressEvent(button, buttonStatus.CurrentPosition);
-                        EventDispatcher.Raise(longPressEvent);
-                    }
-
-                    var endPressEvent = new EndPressEvent(button, buttonStatus.CurrentPosition);
-                    EventDispatcher.Raise(endPressEvent);
-                    break;
+                BeginPress(button, buttonStatus);
+            }
+            else if (press.wasReleasedThisFrame)
+            {
+                EndPress(button, buttonStatus);
+            }
+            else if (touch.delta.ReadValue() != Vector2.zero)
+            {
+                var movingEvent = new MovingEvent(button, buttonStatus.CurrentPosition, buttonStatus.Direction, buttonStatus.Distance);
+                EventDispatcher.Raise(movingEvent);
             }
         }
 
+        private void BeginPress(Button button, ButtonStatus buttonStatus)
+        {
+            if (buttonStatus.Pressed)
+            {
+                return;
+            }
+
+            buttonStatus.BeginPress(Time.time);
+            var beginPressEvent = new BeginPressEvent(button, buttonStatus.CurrentPosition);
+            EventDispatcher.Raise(beginPressEvent);
+        }
+
+        private void EndPress(Button button, ButtonStatus buttonStatus)
+        {
+            if (!buttonStatus.Pressed)
+            {
+                return;
+            }
+
+            if (buttonStatus.EndPress(Time.time) < LongPressThreshold)
+            {
+                var pressEvent = new PressEvent(button, buttonStatus.CurrentPosition);
+                EventDispatcher.Raise(pressEvent);
+            }
+            else
+            {
+                var longPressEvent = new LongPressEvent(button, buttonStatus.CurrentPosition);
+                EventDispatcher.Raise(longPressEvent);
+            }
+
+            var endPressEvent = new EndPressEvent(button, buttonStatus.CurrentPosition);
+            EventDispatcher.Raise(endPressEvent);
+        }
+
+        /**
+         * Register a predefined input key (the legacy axis names, such as "Horizontal" or "Jump")
+         */
         public void RegisterInput(string key)
         {
-            if (!registedInputKey.Contains(key))
+            if (predefinedActions.TryGetValue(key, out var action))
             {
-                registedInputKey.Add(key);
+                RegisterInput(key, action);
             }
+            else
+            {
+                Debug.LogWarning($"InputManager: \"{key}\" is not predefined, register it with an InputAction");
+            }
+        }
+
+        /**
+         * Register an action reported in InputEvent under key. The action is enabled while registered.
+         */
+        public void RegisterInput(string key, InputAction action)
+        {
+            UnregisterInput(key);
+            registedActions.Add(key, action);
+            action.Enable();
         }
 
         public void UnregisterInput(string key)
         {
-            if (registedInputKey.Contains(key))
+            if (registedActions.TryGetValue(key, out var action))
             {
-                registedInputKey.Remove(key);
+                registedActions.Remove(key);
+                action.Disable();
             }
         }
 
         private void ProcessInput()
         {
             var inputEvent = new InputEvent();
-            foreach (var key in registedInputKey)
+            foreach (var pair in registedActions)
             {
-                inputEvent.UpdateValue(key, Input.GetAxis(key));
+                inputEvent.UpdateValue(pair.Key, pair.Value.ReadValue<float>());
             }
 
             EventDispatcher.Raise(inputEvent);
+        }
+
+        private static InputAction CreateAxis(string name, string stick, params (string negative, string positive)[] keys)
+        {
+            var action = new InputAction(name, InputActionType.Value, stick, expectedControlType: "Axis");
+            foreach (var (negative, positive) in keys)
+            {
+                action.AddCompositeBinding("1DAxis")
+                    .With("Negative", negative)
+                    .With("Positive", positive);
+            }
+
+            return action;
+        }
+
+        private static InputAction CreateButton(string name, params string[] bindings)
+        {
+            var action = new InputAction(name, InputActionType.Button);
+            foreach (var binding in bindings)
+            {
+                action.AddBinding(binding);
+            }
+
+            return action;
+        }
+
+        private static InputAction CreateValue(string name, string binding, string processors)
+        {
+            return new InputAction(name, InputActionType.Value, binding, processors: processors, expectedControlType: "Axis");
         }
     }
 }
