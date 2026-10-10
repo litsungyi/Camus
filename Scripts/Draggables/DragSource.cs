@@ -11,6 +11,12 @@ namespace Camus.Draggables
             internal set;
         }
 
+        public DropTarget Target
+        {
+            get;
+            internal set;
+        }
+
         #region IBeginDragHandler
 
         void IBeginDragHandler.OnBeginDrag(PointerEventData eventData)
@@ -60,15 +66,16 @@ namespace Camus.Draggables
         public virtual DraggableResult GetDraggableResult() => DraggableResult.Accepted;
 
         /**
-         * If return DraggedResult.None, keep DragSource at current position
-         * If return DraggedResult.ResetPosition, reset DragSource to origin position
+         * Called when dropped on a DropTarget holding another item.
+         * Update the data of both items, then return how DragManager moves them.
          */
-        public virtual DraggedResult GetDraggedResult() => DraggedResult.None;
+        public virtual MergeResult Merge(DragSource target) => MergeResult.Swapped;
 
         protected internal virtual void OnBeginDragging() {}
 
         protected internal virtual void OnEndDragging() {}
 
+        // Drop failed, DragSource is moved back to origin
         protected internal virtual void OnCancelDragging() {}
 
         protected internal virtual void OnDropped(DropTarget dropTarget) {}

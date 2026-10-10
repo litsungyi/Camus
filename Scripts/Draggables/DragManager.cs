@@ -6,90 +6,56 @@ using UnityEngine;
 
 namespace Camus.Draggables
 {
+    /**
+     * uGUI calls OnDrop on the target before OnEndDrag on the source.
+     * A successful Drop finishes the drag, so EndDrag only sees failed drops and moves the source back.
+     */
     public static class DragManager
     {
         private class DragInfo
         {
-            public DragSource Source;
+            public Transform OriginParent;
+            public int OriginSiblingIndex;
             public Vector3 OriginPosition;
         }
 
-        private static readonly Dictionary<GameObject, DragInfo> dragingObjects = new Dictionary<GameObject, DragInfo>();
+        private static readonly Dictionary<DragSource, DragInfo> draggingSources = new Dictionary<DragSource, DragInfo>();
 
         public static void BeginDrag(DragSource source, PointerEventData eventData)
         {
-            switch (source.GetDraggableResult())
-            {
-                case DraggableResult.Accepted:
-                    AcceptBeginDrag();
-                    break;
-
-                case DraggableResult.Denied:
-                default:
-                    break;
-            }
-
-            void AcceptBeginDrag()
-            {
-                var dragInfo = new DragInfo
-                {
-                    Source = source,
-                    OriginPosition = source.transform.position
-                };
-                dragingObjects.Add(source.gameObject, dragInfo);
-
-                source.IsDragging = true;
-                source.OnBeginDragging();
-                EventDispatcher.Raise(new BeginDragEvent(source));
-            }
-        }
-
-        public static void EndDrag(DragSource source, PointerEventData eventData)
-        {
-            if (!source.IsDragging ||
-                !dragingObjects.TryGetValue(source.gameObject, out DragInfo dragInfo))
+            if (source.GetDraggableResult() != DraggableResult.Accepted)
             {
                 return;
             }
 
-            switch (source.GetDraggedResult())
+            var transform = source.transform;
+            draggingSources[source] = new DragInfo
             {
-                case DraggedResult.ResetPosition:
-                    ResetPosition(dragInfo);
-                    break;
+                OriginParent = transform.parent,
+                OriginSiblingIndex = transform.GetSiblingIndex(),
+                OriginPosition = transform.position,
+            };
 
-                case DraggedResult.None:
-                default:
-                    break;
+            source.IsDragging = true;
+            source.OnBeginDragging();
+            EventDispatcher.Raise(new BeginDragEvent(source));
+        }
+
+        public static void EndDrag(DragSource source, PointerEventData eventData)
+        {
+            if (!draggingSources.TryGetValue(source, out DragInfo dragInfo))
+            {
+                return;
             }
 
-            OnEndDrag(); // OnCancelDrag()
-
-            void ResetPosition(DragInfo dragInfo)
-            {
-                dragInfo.Source.transform.position = dragInfo.OriginPosition;
-            }
-
-            void OnEndDrag()
-            {
-                dragingObjects.Remove(source.gameObject);
-                source.IsDragging = false;
-                source.OnEndDragging();
-                EventDispatcher.Raise(new EndDragEvent(source));
-            }
-
-            void OnCancelDrag()
-            {
-                dragingObjects.Remove(source.gameObject);
-                source.IsDragging = false;
-                source.OnCancelDragging();
-                EventDispatcher.Raise(new EndDragEvent(source));
-            }
+            MoveToOrigin(source.transform, dragInfo);
+            source.OnCancelDragging();
+            FinishDrag(source);
         }
 
         public static void Dragging(DragSource source, PointerEventData eventData)
         {
-            if (!source.IsDragging || !dragingObjects.TryGetValue(source.gameObject, out DragInfo dragInfo))
+            if (!draggingSources.ContainsKey(source))
             {
                 return;
             }
@@ -99,44 +65,100 @@ namespace Camus.Draggables
 
         public static void Drop(GameObject sourceObject, DropTarget target)
         {
-            if (!target.IsDroppable)
+            if (sourceObject == null ||
+                !sourceObject.TryGetComponent(out DragSource source) ||
+                !draggingSources.TryGetValue(source, out DragInfo dragInfo))
             {
                 return;
             }
 
-            if (!dragingObjects.TryGetValue(sourceObject, out DragInfo dragInfo))
+            // Leave the drag running, EndDrag moves the source back to origin
+            if (!target.IsDroppable || target.GetDroppableResult(source) != DroppableResult.Accepted)
             {
                 return;
             }
 
-            switch (target.GetDroppableResult(dragInfo.Source))
+            var other = target.Item;
+            if (other == null || other == source)
             {
-                case DroppableResult.Accepted:
-                    AcceptDrop();
+                Place(source, target);
+            }
+            else
+            {
+                Merge(source, other, target, dragInfo);
+            }
+
+            source.OnDropped(target);
+            target.OnDropped(source);
+            EventDispatcher.Raise(new DropEvent(source, target));
+            FinishDrag(source);
+        }
+
+        private static void Merge(DragSource source, DragSource other, DropTarget target, DragInfo dragInfo)
+        {
+            switch (source.Merge(other))
+            {
+                case MergeResult.Stacked:
+                case MergeResult.Combined:
+                    Detach(source);
+                    Object.Destroy(source.gameObject);
                     break;
 
-                case DroppableResult.Denied:
+                case MergeResult.Overflowed:
+                    MoveToOrigin(source.transform, dragInfo);
+                    break;
+
+                case MergeResult.Swapped:
                 default:
-                    DenyDrop();
+                    var originTarget = source.Target;
+                    Place(source, target);
+                    if (originTarget != null)
+                    {
+                        Place(other, originTarget);
+                    }
+                    else
+                    {
+                        other.Target = null;
+                        MoveToOrigin(other.transform, dragInfo);
+                    }
                     break;
             }
+        }
 
-            void AcceptDrop()
+        private static void Place(DragSource source, DropTarget target)
+        {
+            Detach(source);
+            source.Target = target;
+            target.Item = source;
+
+            var point = target.DropPoint;
+            source.transform.SetParent(point, true);
+            source.transform.position = point.position;
+        }
+
+        private static void Detach(DragSource source)
+        {
+            if (source.Target != null && source.Target.Item == source)
             {
-                dragingObjects.Remove(sourceObject);
-                dragInfo.Source.IsDragging = false;
-                dragInfo.Source.OnDropped(target);
-                target.OnDropped(dragInfo.Source);
-                EventDispatcher.Raise(new DropEvent(dragInfo.Source, target));
+                source.Target.Item = null;
             }
 
-            void DenyDrop()
-            {
-                dragingObjects.Remove(sourceObject);
-                dragInfo.Source.IsDragging = false;
-                dragInfo.Source.OnCancelDragging();
-                EventDispatcher.Raise(new EndDragEvent(dragInfo.Source));
-            }
+            source.Target = null;
+        }
+
+        private static void MoveToOrigin(Transform transform, DragInfo dragInfo)
+        {
+            transform.SetParent(dragInfo.OriginParent, true);
+            transform.SetSiblingIndex(dragInfo.OriginSiblingIndex);
+            transform.position = dragInfo.OriginPosition;
+        }
+
+        private static void FinishDrag(DragSource source)
+        {
+            draggingSources.Remove(source);
+            source.IsDragging = false;
+            source.OnEndDragging();
+            EventDispatcher.Raise(new EndDragEvent(source));
         }
     }
 }

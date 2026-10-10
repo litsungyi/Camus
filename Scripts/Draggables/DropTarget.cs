@@ -5,21 +5,26 @@ namespace Camus.Draggables
 {
     public abstract class DropTarget : MonoBehaviour, IDropHandler
     {
+        [SerializeField] private Transform dropPoint;
+
         public bool IsDroppable
         {
             get;
             set;
         }
 
+        public DragSource Item
+        {
+            get;
+            internal set;
+        }
+
+        public Transform DropPoint => dropPoint != null ? dropPoint : transform;
+
         #region IDropHandler
 
         void IDropHandler.OnDrop(PointerEventData eventData)
         {
-            if (!IsDroppable)
-            {
-                return;
-            }
-
             DragManager.Drop(eventData.pointerDrag, this);
         }
 
