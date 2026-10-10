@@ -162,7 +162,7 @@ namespace Camus.Validators
             var serialProperty = serialObject.FindProperty(fieldInfo.Name);
             if (serialProperty != null && serialProperty.propertyType == SerializedPropertyType.ObjectReference)
             {
-                if (fieldValue.Equals(null) && serialProperty.objectReferenceInstanceIDValue != 0)
+                if (IsNull(fieldValue) && serialProperty.objectReferenceInstanceIDValue != 0)
                 {
                     return true;
                 }
@@ -176,7 +176,7 @@ namespace Camus.Validators
             var attributes = fieldInfo.GetCustomAttributes(typeof(NotNullAttribute), false);
             if (attributes.Any())
             {
-                if (fieldValue.Equals(null))
+                if (IsNull(fieldValue))
                 {
                     return true;
                 }
@@ -184,6 +184,9 @@ namespace Camus.Validators
 
             return false;
         }
+
+        // Unity "fake null" objects compare equal to null only via Equals
+        private static bool IsNull(object value) => value == null || value.Equals(null);
 
         #endregion
 
