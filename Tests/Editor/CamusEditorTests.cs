@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Camus.Draggables;
 using Camus.EventSystems;
+using Camus.StateMachines;
 using NUnit.Framework;
 using Range = Camus.Utilities.Range;
 
@@ -14,6 +16,28 @@ namespace Camus.Tests
         private class TestSource : DragSource {}
 
         private class TestTarget : DropTarget {}
+
+        private class LogState : State<List<string>>
+        {
+            protected override void OnEnter() => Owner.Add($"enter {GetType().Name}");
+            protected override void OnUpdate(float deltaTime) => Owner.Add($"update {GetType().Name}");
+            protected override void OnExit() => Owner.Add($"exit {GetType().Name}");
+        }
+
+        private class Idle : LogState {}
+
+        private class Run : LogState {}
+
+        // Moves straight on to Idle from OnEnter, which the machine queues
+        private class Bounce : LogState
+        {
+            protected override void OnEnter()
+            {
+                base.OnEnter();
+                ChangeState<Idle>();
+                Owner.Add("bounce done");
+            }
+        }
 
         [Test]
         public void Range_FactoriesRespectBounds()
@@ -94,6 +118,57 @@ namespace Camus.Tests
             {
                 UnityEngine.Object.DestroyImmediate(root.gameObject);
             }
+        }
+
+        [Test]
+        public void StateMachine_FollowsTransitionTable()
+        {
+            var log = new List<string>();
+            var machine = new StateMachine<List<string>>(log)
+                .AddState(new Idle())
+                .AddState(new Run())
+                .AddState(new Bounce())
+                .AddTransition<Idle, Run>()
+                .AddTransition<Run, Bounce>()
+                .AddTransition<Bounce, Idle>()
+                .AddTransition<Run, Idle>(owner => owner.Contains("stop"));
+            var changes = 0;
+            machine.StateChanged += (previous, current) => ++changes;
+
+            Assert.Throws<InvalidOperationException>(() => machine.ChangeState<Idle>());
+            machine.Start<Idle>();
+            machine.Update(0.1f);
+            machine.ChangeState<Run>();
+            machine.ChangeState<Bounce>();
+
+            Assert.AreEqual(new[]
+            {
+                "enter Idle",
+                "update Idle",
+                "exit Idle", "enter Run",
+                "exit Run", "enter Bounce", "bounce done",
+                "exit Bounce", "enter Idle",
+            }, log);
+            Assert.IsTrue(machine.IsInState<Idle>());
+            Assert.IsInstanceOf<Bounce>(machine.PreviousState);
+            Assert.AreEqual(4, changes);
+
+            // Idle -> Bounce is not in the table
+            Assert.IsFalse(machine.CanChangeState<Bounce>());
+            Assert.Throws<InvalidOperationException>(() => machine.ChangeState<Bounce>());
+            Assert.IsTrue(machine.IsInState<Idle>());
+
+            // Run -> Idle is taken by Update once its condition is true
+            machine.ChangeState<Run>();
+            machine.Update(0.1f);
+            Assert.IsTrue(machine.IsInState<Run>());
+            log.Add("stop");
+            machine.Update(0.1f);
+            Assert.IsTrue(machine.IsInState<Idle>());
+
+            Assert.Throws<InvalidOperationException>(() => machine.Start<Run>());
+            Assert.Throws<KeyNotFoundException>(() => new StateMachine<List<string>>(log).Start<Idle>());
+            Assert.Throws<InvalidOperationException>(() => new StateMachine<List<string>>(log).AddState(machine.GetState<Run>()));
         }
     }
 }
