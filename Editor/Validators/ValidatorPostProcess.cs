@@ -35,7 +35,26 @@ namespace Camus.Validators
         [MenuItem("Camus/Validate All Null or Missing Reference")]
         public static void ValidateAllNullOrMissingReference()
         {
-            var checkPassed = CheckAllEnabledScenes() & CheckAllPrefabs();
+            // OpenScene discards unsaved changes, so save first and restore the user's scenes afterwards
+            if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+            {
+                throw new Exception("[*] Null or Missing Reference check cancelled!");
+            }
+
+            var sceneSetup = EditorSceneManager.GetSceneManagerSetup();
+            bool checkPassed;
+            try
+            {
+                checkPassed = CheckAllEnabledScenes() & CheckAllPrefabs();
+            }
+            finally
+            {
+                if (sceneSetup.Length > 0)
+                {
+                    EditorSceneManager.RestoreSceneManagerSetup(sceneSetup);
+                }
+            }
+
             if (!checkPassed)
             {
                 throw new Exception(string.Format("[*] Null or Missing Reference check failed!"));
