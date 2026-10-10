@@ -22,14 +22,14 @@ namespace Camus.EventSystems
                 {
                     action
                 };
-                eventDispatcher.Add(typeof(T), actions);
+                eventDispatcher.Add(typeof(TAction), actions);
             }
         }
 
         public void Unregister<TAction>(Action<TAction> action) where TAction : T
         {
             IList actions = null;
-            if (eventDispatcher.TryGetValue(typeof(T), out actions))
+            if (eventDispatcher.TryGetValue(typeof(TAction), out actions))
             {
                 actions.Remove(action);
             }
@@ -38,7 +38,7 @@ namespace Camus.EventSystems
         public void Raise<TAction>(TAction @event) where TAction : T
         {
             IList actions = null;
-            if (eventDispatcher.TryGetValue(typeof(T), out actions))
+            if (eventDispatcher.TryGetValue(typeof(TAction), out actions))
             {
                 foreach (Action<TAction> action in actions)
                 {
