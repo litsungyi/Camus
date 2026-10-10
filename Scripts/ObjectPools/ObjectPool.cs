@@ -102,10 +102,15 @@ namespace Camus.ObjectPools
         public GameObject Acquire(Transform parent = null)
         {
             var instance = GetInstance();
-            instance?.SetActive(true);
+            if (instance == null)
+            {
+                return null;
+            }
+
+            instance.SetActive(true);
             if (parent != null)
             {
-                instance?.transform.SetParent(parent);
+                instance.transform.SetParent(parent);
             }
 
             return instance;
@@ -115,8 +120,7 @@ namespace Camus.ObjectPools
             where T : MonoBehaviour
         {
             var instance = Acquire(parent);
-            var target = instance?.GetComponent(typeof(T));
-            return target as T;
+            return instance != null ? instance.GetComponent<T>() : null;
         }
 
         public bool Release(GameObject instance)

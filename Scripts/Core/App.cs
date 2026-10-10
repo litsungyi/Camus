@@ -38,9 +38,9 @@ public partial class App : Singleton<App>
         {
             fps = gameObject.AddComponent<FPS>();
         }
-        else
+        else if (fps != null)
         {
-            fps?.gameObject.SetActive(enable);
+            fps.gameObject.SetActive(enable);
         }
     }
 

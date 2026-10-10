@@ -92,7 +92,10 @@ namespace Camus.UiUtilities
 
         protected virtual void InitializeView()
         {
-            View?.SetEventSourcing(eventSourcing);
+            if (View != null)
+            {
+                View.SetEventSourcing(eventSourcing);
+            }
         }
     }
 }

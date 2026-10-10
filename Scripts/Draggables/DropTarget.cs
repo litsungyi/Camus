@@ -19,7 +19,8 @@ namespace Camus.Draggables
             internal set;
         }
 
-        public Transform DropPoint => dropPoint ?? transform;
+        // Not ??: an unassigned serialized field is only null to Unity's == operator
+        public Transform DropPoint => dropPoint != null ? dropPoint : transform;
 
         #region IDropHandler
 
