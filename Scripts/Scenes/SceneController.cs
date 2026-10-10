@@ -26,7 +26,7 @@ namespace Camus.Scenes
             yield return WaitUntilDone(loading);
 
             var newScene = SceneManager.GetActiveScene();
-            currentScene = newScene.GetRootGameObjects().FirstOrDefault(s => s.GetComponent<IScene>() != null).GetComponent<IScene>();
+            currentScene = newScene.GetRootGameObjects().Select(s => s.GetComponent<IScene>()).FirstOrDefault(s => s != null);
             currentScene?.OnSceneLoaded();
 
             static IEnumerator WaitUntilDone(AsyncOperation async)
