@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Camus.EventSystems;
+using Camus.Localizables.Events;
 using UnityEngine;
 
 namespace Camus.Localizables
@@ -57,6 +59,8 @@ namespace Camus.Localizables
                 {
                     item.IsDirty = true;
                 }
+
+                EventDispatcher.Raise(new LocaleChangedEvent());
             }
         }
 
