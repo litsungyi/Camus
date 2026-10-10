@@ -99,7 +99,9 @@ namespace {0}
                 var assetBundles = ParseAssetBundles();
 
                 builder.AppendFormat(projectInfoTemplate, myNamespace, scenes, tags, layers, sortingLayers, assetBundles);
-                File.WriteAllText($"{folder}/ProjectInfo.cs", builder.ToString());
+                Directory.CreateDirectory(folder);
+                File.WriteAllText(Path.Combine(folder, "ProjectInfo.cs"), builder.ToString());
+                AssetDatabase.Refresh();
             }
         }
 
