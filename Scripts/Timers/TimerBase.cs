@@ -67,7 +67,7 @@ namespace Camus.Timers
         #region Fields
 
         [SerializeField] private TimerSetting setting;
-        [ReadOnly, SerializeField] private TimerState state = null;
+        [ReadOnly, SerializeField] private TimerState state = new TimerState();
         [ReadOnly, SerializeField] private TimerStatus status = TimerStatus.None;
         private Action onTimer = null;
 
