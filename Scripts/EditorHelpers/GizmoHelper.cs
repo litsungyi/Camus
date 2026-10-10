@@ -75,7 +75,7 @@ namespace Camus.EditorHelpers
             Handles.Label(position, content, style);
         }
 
-        [System.Diagnostics.Conditional("NOT_UNITY_EDITOR")]
+        [System.Diagnostics.Conditional("UNITY_EDITOR")]
         public static void DrawDisc(Transform transform, float radius, Color color, Vector3 normal)
         {
             Handles.color = color;
