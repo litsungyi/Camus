@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Camus.Draggables;
 using Camus.EventSystems;
+using Camus.Localizables;
 using Camus.StateMachines;
 using NUnit.Framework;
 using Range = Camus.Utilities.Range;
@@ -118,6 +119,26 @@ namespace Camus.Tests
             {
                 UnityEngine.Object.DestroyImmediate(root.gameObject);
             }
+        }
+
+        [Test]
+        public void LocalizationManager_TryGetLocalString()
+        {
+            var manager = new LocalizationManager();
+            Assert.IsFalse(manager.TryGetLocalString("hello", out _));
+
+            manager.Initialize(Language.En, new List<LocalData>
+            {
+                new LocalData { Key = "hello", Values = new Dictionary<Language, string> { { Language.En, "Hello" }, { Language.Ja, "こんにちは" } } },
+            });
+            Assert.IsTrue(manager.TryGetLocalString("hello", out var english));
+            Assert.AreEqual("Hello", english);
+            Assert.IsFalse(manager.TryGetLocalString("missing", out _));
+            Assert.IsFalse(manager.TryGetLocalString(null, out _));
+
+            manager.CurrentLanguage = Language.Ja;
+            Assert.IsTrue(manager.TryGetLocalString("hello", out var japanese));
+            Assert.AreEqual("こんにちは", japanese);
         }
 
         [Test]

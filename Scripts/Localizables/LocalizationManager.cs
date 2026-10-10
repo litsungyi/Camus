@@ -136,6 +136,16 @@ namespace Camus.Localizables
         }
 
         /// <summary>
+        /// Look up a key in the current language without logging or caching a LocalKey.
+        /// Use it when the caller has its own fallback, e.g. source text used as the key.
+        /// </summary>
+        public bool TryGetLocalString(string key, out string value)
+        {
+            value = null;
+            return Initialized && key != null && CurrentStringDatas != null && CurrentStringDatas.TryGetValue(key, out value);
+        }
+
+        /// <summary>
         /// Get localization string from a LocalKey,
         /// if localKey is null or localKey cannot found in CurrentStringDatas, return null
         /// otherwise return a localization of localKey (equals to localKey.Value)
