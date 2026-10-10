@@ -37,6 +37,14 @@ namespace Camus.EditorHelpers
         {}
 
 #if UNITY_EDITOR
+        // Gap in pixels between the gizmo border and the label
+        private const int LabelGap = 2;
+
+        // ponytail: half of a typical 32px icon, measure the drawn icon if labels overlap it
+        private const int IconHalfHeight = 16;
+#endif
+
+#if UNITY_EDITOR
         // Draw once with the selected color, OnDrawGizmosSelected would draw a second time on top
         private void OnDrawGizmos()
         {
@@ -100,7 +108,40 @@ namespace Camus.EditorHelpers
 
             if (!string.IsNullOrEmpty(label))
             {
-                GizmoHelper.DrawLabel(label, transform.position, labelFontSize, labelFontColor, null);
+                var position = GetLabelPosition();
+                var offsetY = gizmoType == GizmoType.Icon ? IconHalfHeight + LabelGap : LabelGap;
+                GizmoHelper.DrawLabel(label, position, labelFontSize, labelFontColor, null, offsetY);
+            }
+        }
+
+        // The lowest point of the gizmo on screen, so the label sits below its border
+        private Vector3 GetLabelPosition()
+        {
+            var camera = Camera.current;
+            var down = camera != null ? -camera.transform.up : Vector3.down;
+
+            switch (gizmoType)
+            {
+                case GizmoType.Collider:
+                case GizmoType.SolidCollider:
+                    if (thisCollider == null)
+                    {
+                        return transform.position;
+                    }
+
+                    var bounds = thisCollider.bounds;
+                    var extents = bounds.extents;
+                    var depth = extents.x * Mathf.Abs(down.x) + extents.y * Mathf.Abs(down.y) + extents.z * Mathf.Abs(down.z);
+                    return bounds.center + down * depth;
+
+                case GizmoType.Disc:
+                case GizmoType.SolidDisc:
+                    // Discs lie flat (normal up), so their lowest point is along down projected on the disc plane
+                    var discRadius = GizmoHelper.GetMaxScale(transform) * radius;
+                    return transform.position + Vector3.ProjectOnPlane(down, Vector3.up).normalized * discRadius;
+
+                default:
+                    return transform.position;
             }
         }
 #endif

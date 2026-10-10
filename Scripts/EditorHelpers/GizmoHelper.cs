@@ -62,14 +62,16 @@ namespace Camus.EditorHelpers
             Gizmos.matrix = matrix;
         }
 
+        // Centers the label horizontally with its top at position, pushed down by offsetY pixels
         [System.Diagnostics.Conditional("UNITY_EDITOR")]
-        public static void DrawLabel(string content, Vector3 position, int fontSize, Color fontColor, Texture2D background)
+        public static void DrawLabel(string content, Vector3 position, int fontSize, Color fontColor, Texture2D background, int offsetY = 0)
         {
             GUIStyle style = new GUIStyle(GUI.skin.label);
             style.normal.textColor = fontColor;
             style.normal.background = background;
             style.fontSize = fontSize;
-            style.padding = new RectOffset();
+            style.alignment = TextAnchor.UpperCenter;
+            style.padding = new RectOffset(0, 0, offsetY, 0);
             style.margin = new RectOffset();
             Handles.Label(position, content, style);
         }
@@ -88,7 +90,7 @@ namespace Camus.EditorHelpers
             Handles.DrawSolidDisc(transform.position, normal, GetMaxScale(transform) * radius);
         }
 
-        private static float GetMaxScale(Transform transform)
+        internal static float GetMaxScale(Transform transform)
         {
             var scale = transform.lossyScale;
             return Mathf.Max(Mathf.Abs(scale.x), Mathf.Abs(scale.y), Mathf.Abs(scale.z));
