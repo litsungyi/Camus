@@ -55,10 +55,8 @@ public partial class App : Singleton<App>
 
     private void Initialize()
     {
-        // var text = Resources.Load<TextAsset>("Localization").text;
-        // var datas = JsonConvert.DeserializeObject<List<LocalData>>(text);
-        // LocalizationManager = new LocalizationManager();
-        // LocalizationManager.Initialize(Language.Zh_Tw, datas);
+        // Host calls App.Instance.LocalizationManager.Initialize(language, datas) with its own data.
+        LocalizationManager = new LocalizationManager();
 
         SceneController = new SceneController();
     }
