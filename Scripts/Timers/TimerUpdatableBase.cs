@@ -9,7 +9,7 @@ namespace Camus.Timers
 
         private void OnDisable()
         {
-            App.Instance.Updater.Unregister(this);
+            App.Instance?.Updater.Unregister(this);
         }
     }
 }
