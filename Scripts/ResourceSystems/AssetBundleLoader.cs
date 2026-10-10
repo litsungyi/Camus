@@ -47,6 +47,7 @@ namespace Camus.ResourceSystems
             }
 
             assetBundle.Unload(unloadAllLoadedObjects);
+            Bundles.Remove(bundleName);
         }
 
         public static T LoadResource<T>(AssetBundleInfo bundleInfo, string assetName) where T : MonoBehaviour
