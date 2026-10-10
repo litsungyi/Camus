@@ -3,7 +3,8 @@
     "rootNamespace": "",
     "references": [
         "SQLite4Unity3d",
-        "Unity.InputSystem"
+        "Unity.InputSystem",
+        "Unity.TextMeshPro"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
