@@ -36,6 +36,11 @@ namespace Camus.Localizables
 
         private void OnLocaleChange(LocaleChangedEvent e)
         {
+            if (localKey != null)
+            {
+                localKey.IsDirty = true;
+            }
+
             UpdateText();
         }
 
