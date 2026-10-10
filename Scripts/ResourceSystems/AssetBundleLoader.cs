@@ -66,7 +66,7 @@ namespace Camus.ResourceSystems
 
             var path = $"Assets/Prefabs/UI/{assetName}.prefab";
             var instance = bundle.LoadAsset<GameObject>(path);
-            return instance.GetComponent<T>();
+            return instance?.GetComponent<T>();
         }
 
         public static T LoadEffectResource<T>(AssetBundleInfo bundleInfo, string assetName) where T : MonoBehaviour
@@ -85,7 +85,7 @@ namespace Camus.ResourceSystems
 
             var path = $"Assets/Atlas/boostV001effect/{assetName}.prefab";
             var instance = bundle.LoadAsset<GameObject>(path);
-            return instance.GetComponent<T>();
+            return instance?.GetComponent<T>();
         }
     }
 }
