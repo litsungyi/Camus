@@ -115,6 +115,13 @@ namespace Camus.Validators
             {
                 foreach (var component in GetAllComponents(gameObject))
                 {
+                    if (component == null)
+                    {
+                        Debug.LogError(string.Format("    [Script] Missing script in {0}", gameObject.name), gameObject);
+                        checkPassed = false;
+                        continue;
+                    }
+
                     if (!CheckNullValueOrMissingReference(component))
                     {
                         checkPassed = false;
