@@ -93,8 +93,8 @@ namespace Camus.Inputs
 
             public void TickPosition(Vector3 position)
             {
-                CurrentPosition = LastPosition;
-                LastPosition = position;
+                LastPosition = CurrentPosition;
+                CurrentPosition = position;
             }
         }
 
