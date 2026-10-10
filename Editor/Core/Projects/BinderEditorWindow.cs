@@ -1,4 +1,5 @@
 using System.IO;
+using System.Linq;
 using System.Text;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -105,13 +106,10 @@ namespace {0}
         private string ParseScenes()
         {
             StringBuilder builder = new StringBuilder();
-            var max = SceneManager.sceneCountInBuildSettings;
-            for (int index = 0; index < max; ++index)
+            var scenes = EditorBuildSettings.scenes.Where(s => s.enabled).ToArray();
+            for (int index = 0; index < scenes.Length; ++index)
             {
-                var sceneSetting = EditorBuildSettings.scenes[index];
-                //var scene = SceneManager.GetSceneByPath(sceneSetting.path);
-                var sceneName = ParsePath(sceneSetting.path);
-                var scene = SceneManager.GetSceneByBuildIndex(index);
+                var sceneName = ParsePath(scenes[index].path);
                 builder.AppendFormat(sceneTemplate, ParseName(sceneName), index, sceneName);
             }
 
