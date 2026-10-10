@@ -23,8 +23,7 @@ namespace Camus.Inputs.Events
 
         public bool IsHigh(string key)
         {
-            var value = 0f;
-            if (Values.TryGetValue(key, out value))
+            if (Values.TryGetValue(key, out global::System.Single value))
             {
                 return value >= 0.9999999f || value <= -0.9999999f;
             }
@@ -34,8 +33,7 @@ namespace Camus.Inputs.Events
 
         public bool IsLow(string key)
         {
-            var value = 0f;
-            if (Values.TryGetValue(key, out value))
+            if (Values.TryGetValue(key, out global::System.Single value))
             {
                 return value <= 0.0000001f && value >= -0.0000001f;
             }
@@ -45,8 +43,7 @@ namespace Camus.Inputs.Events
 
         public bool IsPositive(string key)
         {
-            var value = 0f;
-            if (Values.TryGetValue(key, out value))
+            if (Values.TryGetValue(key, out global::System.Single value))
             {
                 return value >= 0.0000001f;
             }
@@ -56,8 +53,7 @@ namespace Camus.Inputs.Events
 
         public bool IsNegative(string key)
         {
-            var value = 0f;
-            if (Values.TryGetValue(key, out value))
+            if (Values.TryGetValue(key, out global::System.Single value))
             {
                 return value <= -0.0000001f;
             }
@@ -67,8 +63,7 @@ namespace Camus.Inputs.Events
 
         public float GetValue(string key)
         {
-            var value = 0f;
-            Values.TryGetValue(key, out value);
+            Values.TryGetValue(key, out global::System.Single value);
             return value;
         }
     }

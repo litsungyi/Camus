@@ -16,20 +16,18 @@ public class DataService
             if ( filePath.Contains( "://" ) )
             {
                 // Android/WebGL: StreamingAssets is inside the archive, read it via UnityWebRequest
-                using ( var request = UnityWebRequest.Get( filePath ) )
+                using var request = UnityWebRequest.Get(filePath);
+                request.SendWebRequest();
+                while (!request.isDone)
                 {
-                    request.SendWebRequest();
-                    while ( !request.isDone )
-                    {
-                    }
-
-                    if ( request.result != UnityWebRequest.Result.Success )
-                    {
-                        throw new IOException( $"Failed to load database {filePath}: {request.error}" );
-                    }
-
-                    File.WriteAllBytes( dbPath, request.downloadHandler.data );
                 }
+
+                if (request.result != UnityWebRequest.Result.Success)
+                {
+                    throw new IOException($"Failed to load database {filePath}: {request.error}");
+                }
+
+                File.WriteAllBytes(dbPath, request.downloadHandler.data);
             }
             else
             {

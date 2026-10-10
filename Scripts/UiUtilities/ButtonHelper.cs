@@ -14,10 +14,7 @@ namespace Camus.UiUtilities
 
         private void Awake()
         {
-            if (uiText == null)
-            {
-                uiText = button.GetComponentInChildren<Text>();
-            }
+            uiText ??= button.GetComponentInChildren<Text>();
         }
 
         public void SetOnClickedCallback(Action onClicked)

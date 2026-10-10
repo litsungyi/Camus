@@ -74,7 +74,7 @@ namespace Camus.UiUtilities
         {
             eventSourcing = new EventSourcing();
 
-            OnＡwaked();
+            OnAwaked();
             RegisterEvents();
             InitializeView();
         }
@@ -85,7 +85,7 @@ namespace Camus.UiUtilities
             this.OnDestroied();
         }
 
-        protected virtual void OnＡwaked() { }
+        protected virtual void OnAwaked() { }
         protected virtual void OnDestroied() { }
         protected virtual void RegisterEvents() { }
         protected virtual void UnregisterEvents() { }

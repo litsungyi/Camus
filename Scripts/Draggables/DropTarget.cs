@@ -19,7 +19,7 @@ namespace Camus.Draggables
             internal set;
         }
 
-        public Transform DropPoint => dropPoint != null ? dropPoint : transform;
+        public Transform DropPoint => dropPoint ?? transform;
 
         #region IDropHandler
 

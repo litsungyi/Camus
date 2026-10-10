@@ -40,7 +40,6 @@ namespace Camus.EditorHelpers
         // Gap in pixels between the gizmo border and the label
         private const int LabelGap = 2;
 
-        // ponytail: half of a typical 32px icon, measure the drawn icon if labels overlap it
         private const int IconHalfHeight = 16;
 #endif
 
@@ -101,7 +100,7 @@ namespace Camus.EditorHelpers
                         GizmoHelper.DrawIcon(transform.position, icon);
                     }
                     break;
-                
+
                 default:
                     break;
             }

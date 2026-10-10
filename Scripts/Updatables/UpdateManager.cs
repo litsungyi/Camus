@@ -51,8 +51,7 @@ namespace Camus.Updatables
 
             foreach (var info in registerList)
             {
-                var fixedUpdatable = info.entity as IFixedUpdatable;
-                if (fixedUpdatable != null)
+                if (info.entity is IFixedUpdatable fixedUpdatable)
                 {
                     if (info.type == RegisterType.Add)
                     {
@@ -64,8 +63,7 @@ namespace Camus.Updatables
                     }
                 }
 
-                var updatable = info.entity as IUpdatable;
-                if (updatable != null)
+                if (info.entity is IUpdatable updatable)
                 {
                     if (info.type == RegisterType.Add)
                     {
@@ -77,8 +75,7 @@ namespace Camus.Updatables
                     }
                 }
 
-                var lateUpdatable = info.entity as ILateUpdatable;
-                if (lateUpdatable != null)
+                if (info.entity is ILateUpdatable lateUpdatable)
                 {
                     if (info.type == RegisterType.Add)
                     {

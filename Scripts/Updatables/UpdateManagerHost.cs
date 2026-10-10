@@ -41,8 +41,7 @@ namespace Camus.Updatables
             var duration = Time.fixedDeltaTime;
             for (var index = 0; index < updaters.Count; ++index)
             {
-                var updater = updaters[index] as IFixedUpdatable;
-                if (updater != null)
+                if (updaters[index] is IFixedUpdatable updater)
                 {
                     updater.OnFixedUpdate(duration);
                 }
@@ -54,8 +53,7 @@ namespace Camus.Updatables
             var duration = Time.deltaTime;
             for (var index = 0; index < updaters.Count; ++index)
             {
-                var updater = updaters[index] as IUpdatable;
-                if (updater != null)
+                if (updaters[index] is IUpdatable updater)
                 {
                     updater.OnUpdate(duration);
                 }
@@ -67,8 +65,7 @@ namespace Camus.Updatables
             var duration = Time.deltaTime;
             for (var index = 0; index < updaters.Count; ++index)
             {
-                var updater = updaters[index] as ILateUpdatable;
-                if (updater != null)
+                if (updaters[index] is ILateUpdatable updater)
                 {
                     updater.OnLateUpdate(duration);
                 }

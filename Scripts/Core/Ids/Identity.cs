@@ -44,7 +44,7 @@ namespace Camus.Core.Ids
             }
 
             // If one is null, but not both, return false.
-            if (((object) lhs == null) || ((object) rhs == null))
+            if ((lhs is null) || (rhs is null))
             {
                 return false;
             }
@@ -73,7 +73,7 @@ namespace Camus.Core.Ids
 
             // If parameter cannot be cast to Point return false.
             Identity<T> that = obj as Identity<T>;
-            if ((object) that == null)
+            if (that is null)
             {
                 return false;
             }
@@ -89,7 +89,7 @@ namespace Camus.Core.Ids
 
         public bool Equals(Identity<T> that)
         {
-            if ((object) that == null)
+            if (that is null)
             {
                 return false;
             }
