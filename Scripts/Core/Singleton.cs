@@ -26,8 +26,8 @@ namespace Camus.Core
                         return instance;
                     }
 
-                    instance = (T) FindObjectOfType(typeof(T));
-                    if (FindObjectsOfType(typeof(T)).Length > 1)
+                    instance = FindAnyObjectByType<T>();
+                    if (FindObjectsByType<T>(FindObjectsSortMode.None).Length > 1)
                     {
                         Debug.LogError("[Singleton] More than 1 singleton!");
                         return instance;
