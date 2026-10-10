@@ -3,13 +3,31 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
-using UnityEditor.Callbacks;
+using UnityEditor.Build;
+using UnityEditor.Build.Reporting;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace Camus.Validators
 {
+    public class ValidatorBuildStep : IPreprocessBuildWithReport
+    {
+        public int callbackOrder => 0;
+
+        public void OnPreprocessBuild(BuildReport report)
+        {
+            try
+            {
+                ValidatorProcess.ValidateAllNullOrMissingReference();
+            }
+            catch (Exception e)
+            {
+                throw new BuildFailedException(e);
+            }
+        }
+    }
+
     public static class ValidatorProcess
     {
         #region PostProcess
@@ -22,12 +40,6 @@ namespace Camus.Validators
             {
                 throw new Exception(string.Format("[*] Null or Missing Reference check failed!"));
             }
-        }
-
-        [PostProcessBuild]
-        public static void OnPostprocessBuild(BuildTarget target, string pathToBuiltProject)
-        {
-            ValidateAllNullOrMissingReference();
         }
 
         #endregion
