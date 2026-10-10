@@ -13,10 +13,10 @@ namespace Camus.Localizables
         private static readonly string InvalidValue = "LOCAL_KEY_NOT_FOUND";
         private static readonly LocalKey InvalidLocalKey = new LocalKey(string.Empty);
 
-        private bool Initialized
+        public bool Initialized
         {
             get;
-            set;
+            private set;
         }
 
         private IDictionary<Language, IDictionary<string, string>> StringDatas = new Dictionary<Language, IDictionary<string, string>>();
@@ -89,12 +89,21 @@ namespace Camus.Localizables
             if (!StringDatas.ContainsKey(currentLanguage))
             {
                 Debug.LogWarning($"[{nameof(LocalizationManager)}] Language not found! (Language = {currentLanguage.ToString()})");
-                Initialized = true;
-                return;
+            }
+            else
+            {
+                CurrentStringDatas = StringDatas[currentLanguage];
             }
 
-            CurrentStringDatas = StringDatas[currentLanguage];
             Initialized = true;
+
+            // Refresh texts enabled before the strings were loaded
+            foreach (var item in KeyDatas.Values)
+            {
+                item.IsDirty = true;
+            }
+
+            EventDispatcher.Raise(new LocaleChangedEvent());
         }
 
         public LocalizationManager()

@@ -112,7 +112,7 @@ To extend the app, add another `public partial class App` file in your module ra
 - `GetLocalKey(key)` returns a cached `LocalKey`. `LocalKey.Value` lazily resolves the string through `App.Instance.LocalizationManager` and caches it until the language changes, which marks all keys dirty. A missing key returns `LOCAL_KEY_NOT_FOUND: <key>`.
 - `LocalStringUpdater` binds a uGUI `Text` to a key and refreshes on `LocaleChangedEvent`.
 - `LocalKeyDrawer` (editor) draws the key string in the inspector.
-- `App` creates an empty manager; the host loads data with `App.Instance.LocalizationManager.Initialize(language, datas)`. Setting `CurrentLanguage` raises `LocaleChangedEvent`, and bound `LocalStringUpdater`s refresh.
+- `App` creates an empty manager; the host loads data once with `App.Instance.LocalizationManager.Initialize(language, datas)` (check `Initialized` first, since App outlives scenes). `Initialize` raises `LocaleChangedEvent`, so `LocalStringUpdater`s enabled earlier refresh. Setting `CurrentLanguage` raises `LocaleChangedEvent`, and bound `LocalStringUpdater`s refresh.
 
 ### Object pool (`Scripts/ObjectPools`)
 - `ObjectPool` is a MonoBehaviour configured in the inspector: `prefab`, `initialSize`, `growSize` (at least 1), `maxGrowTime`.
