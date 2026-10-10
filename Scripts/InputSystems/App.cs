@@ -11,6 +11,7 @@ public partial class App
             if (inputManager == null)
             {
                 inputManager = gameObject.AddComponent<InputManager>();
+                Updater.Register(inputManager);
             }
 
             return inputManager;
