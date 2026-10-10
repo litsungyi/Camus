@@ -53,146 +53,25 @@ To extend the app, add another `public partial class App` file in your module ra
 
 ## Features
 
-### Core (`Scripts/Core`)
-- **`Singleton<T>`**: a MonoBehaviour singleton. `Instance` finds an existing instance, or creates one on a shared `(Singletons)` GameObject marked `DontDestroyOnLoad`. It is lock-guarded and returns `null` after app quit, to avoid creating ghost objects. **Any** singleton's `OnDestroy` sets the quitting flag.
-- **`App`**: the global partial singleton and the framework entry point. `Awake` builds a `SceneController` and, in the editor, enables the FPS overlay. `EnableFps(bool)` is editor-only.
-- **`Logger` / `LogHandler`**: a static logging facade with optional enum tags (`Log(tag, msg)` → `[TAG] msg`). `LogHandler` installs itself as `Debug.unityLogger.logHandler` and forwards to Unity's default handler. This is a hook point for custom sinks.
-- **`Ids/Identity<T>`**: an abstract, serializable, strongly-typed ID wrapper (supports int/uint/long/ulong/string) with value equality, plus `IdentitySerializer` for Newtonsoft JSON. Subclass it per entity, e.g. `class ItemId : Identity<int>`.
-- **`Projects/*Info`**: `SceneInfo`, `TagInfo`, `LayerInfo`, `SortingLayerInfo`, `AssetBundleInfo` are `IEquatable` value structs (id + name). They are generated into a `ProjectInfo` class by the editor Binder window (see Editor tooling) and consumed by `SceneController`, `AssetBundleLoader`, and `IsTagged` extensions.
+One file per feature in `docs/features/`. Read the relevant one before changing that module.
 
-### Event systems (`Scripts/EventSystems`)
-- **`EventDispatcher`**: a static, global, type-keyed pub/sub for `IDomainEvent`. `Register<T>`, `Unregister<T>`, `Raise<T>`. It uses a static generic `EventHost<T>`, so dispatch involves no dictionary lookup. Always unregister in `OnDisable`/`OnDestroy`.
-- **`EventSourcing`**: the same API for `IEvent`, but **instance-scoped**: each instance has its own subscribers. For example, each UI controller or collider wrapper has its own `EventSourcing`.
-- **`EventSource<T>`**: an instance-scoped alternative, constrained to a base event type `T`. It is currently unused.
-- Marker interfaces: `IDomainEvent` for global/app events and `IEvent` for local/component events.
-
-### Update management (`Scripts/Updatables`)
-- An alternative to per-MonoBehaviour `Update()` that avoids Unity's per-object message overhead.
-- Implement `IUpdatable` / `IFixedUpdatable` / `ILateUpdatable`, then call `App.Instance.Updater.Register(this)` (`Unregister` to remove).
-- `UpdateManager` keeps a HashSet per phase. Register and unregister calls are **queued and applied at the end of the next tick**, which makes it safe to mutate during iteration. Iteration order is not guaranteed.
-- `UpdateManagerHost` (internal MonoBehaviour on App) drives up to 5 managers by `Priority` (VeryHigh → VeryLow) in order. `InternalUpdater` is VeryHigh (framework use) and `Updater` is Middle (game use).
-- `Tests/Updatables/*` is a manual benchmark comparing `IUpdatable` against `Update()` across N objects.
-
-### Timers (`Scripts/Timers`)
-- `TimerBase` (MonoBehaviour) holds a serialized `TimerSetting { interval, loop, maxCount }`. It calls `onTimer` every `interval` seconds and stops after `maxCount` ticks unless `loop` is set.
-- Controls: `StartTimer(onTimer)`, `StartTimer(delta, onTimer)`, `RestartTimer`, `StopTimer`, `PauseTimer`, `ResumeTimer`, and `UpdateSetting`. `Status` is one of None/Started/Paused/Stopped. Pausing and stopping disable the component.
-- There are six concrete, sealed variants. Choose by update phase and driver:
-  - Unity message driven: `UpdateTimer`, `FixedUpdateTimer`, `LateUpdateTimer`
-  - `App.Updater` driven (via `TimerUpdatableBase`, which auto-registers in `OnEnable`): `UpdatableTimer`, `FixedUpdatableTimer`, `LateUpdatableTimer`
-- `OnValidate` asserts `interval > 0` and `maxCount >= 0`. `Tests/Timers/TimerTest` is an OnGUI harness for manual testing.
-
-### State machine (`Scripts/StateMachines`)
-- `StateMachine<TOwner>` is a plain C# finite state machine with an explicit transition table:
-  - Define states with `AddState(state)` (one instance per state type), then each allowed change with `AddTransition<TFrom, TTo>()`. All calls chain. `TFrom == TTo` allows re-entering a state.
-  - `AddTransition<TFrom, TTo>(owner => condition)` also makes `Update` take the transition when the condition is true (checked after `OnUpdate`, in the order added).
-  - `Start<TState>()` enters the first state. `ChangeState<TState>()` throws `InvalidOperationException` when the change is not in the table or the machine is not started; `CanChangeState<TState>()` checks first. A state that was never added throws `KeyNotFoundException`.
-- `State<TOwner>` hooks: `OnEnter`, `OnUpdate(deltaTime)`, `OnExit`. A state reads `Owner` and `Machine`, and can call `ChangeState<TState>()`. Override the hooks as `protected override` from your own assembly.
-- The owner drives it with `Update(deltaTime)` (from `Update()` or `IUpdatable.OnUpdate`); `UpdateManager` only registers MonoBehaviours.
-- A `ChangeState` called from `OnExit`/`OnEnter` is queued and runs after the current change. `Stop()` exits without entering another state; call `Start` again to restart.
-- Also: `CurrentState`, `PreviousState`, `IsRunning`, `IsInState<T>()`, `GetState<T>()`, `HasState<T>()`, and the `StateChanged(previous, current)` event (raised after `OnEnter`). Example 7 shows a menu -> play -> result flow.
-
-### Input (`Scripts/InputSystems`, namespace `Camus.Inputs`)
-- `InputManager` is an `IUpdatable` on App, accessed through `App.Instance.InputManager`. It uses the **Input System package** (`com.unity.inputsystem`; `Camus.asmdef` references `Unity.InputSystem`).
-- Each frame it raises the following through `EventDispatcher`:
-  - Mouse buttons (Primary/Secondary/Middle, from `Mouse.current`) and touches (`Button.TouchBaseIndex + i`, from `Touchscreen.current.touches`): `BeginPressEvent`, then either `PressEvent` (shorter than `LongPressThreshold`, default 0.5 s) or `LongPressEvent`, then `EndPressEvent`.
-  - `MovingEvent` (position, direction, distance): every frame for the mouse, and when a pressed touch moves.
-  - `InputEvent`: `ReadValue<float>()` of every registered `InputAction`, keyed by name. Helper methods: `IsHigh`, `IsLow`, `IsPositive`, `IsNegative`, `GetValue`.
-- Predefined actions keep the legacy Input Manager axis names and default bindings (keyboard, mouse, gamepad): Horizontal, Vertical, Fire1–3, Jump, Mouse X/Y, Mouse ScrollWheel, Submit, Cancel. They are registered by default. `RegisterInput(key)` / `UnregisterInput(key)` toggle a predefined one; `RegisterInput(key, InputAction)` adds your own (the manager enables it while registered, and you own it).
-- `InputManager` registers itself with `App.Updater` when it is first accessed through `App.Instance.InputManager`. Events start on the next tick after that first access.
-- In Player Settings, **Active Input Handling** must be "Input System Package (New)" or "Both". uGUI scenes that still use `StandaloneInputModule` need "Both", or switch their EventSystem to `InputSystemUIInputModule`.
-
-### Drag and drop (`Scripts/Draggables`)
-- Built on uGUI `EventSystem` handlers. Subclass `DragSource` (begin/drag/end) and `DropTarget` (drop). The scene needs an `EventSystem`, and objects need raycast targets.
-- `DragManager` (static) tracks active drags and moves the source to the pointer position (screen space, which suits a screen-space canvas). It records the source's origin (parent, sibling index, position) when the drag begins.
-- Drop rules:
-  - A drop that doesn't land on a `DropTarget`, or lands on one that is not `IsDroppable` or whose `GetDroppableResult` is Denied, fails: the source moves back to its origin and gets `OnCancelDragging`.
-  - On an empty target (or its own target), the source moves to `DropTarget.DropPoint` (the serialized `dropPoint`, or the target's transform). The framework tracks `DropTarget.Item` and `DragSource.Target`.
-  - On an occupied target, `DragSource.Merge(targetItem)` updates both items' data and returns a `MergeResult`. `Stacked` / `Combined` destroy the source. `Overflowed` moves the source back to origin. `Swapped` (the default) moves the source in, and moves the target's item to the source's old target or origin.
-- Override hooks:
-  - `DragSource.GetDraggableResult()`: Accepted or Denied.
-  - `DragSource.Merge(target)`: a `MergeResult`. Example 3 (`SourceItem`) implements max stack, combine recipes, and swap.
-  - `DropTarget.GetDroppableResult(source)`: Accepted or Denied.
-  - Callbacks: `OnBeginDragging`, `OnEndDragging` (always last), `OnCancelDragging` (failed drop), `OnDropped`.
-- Global events: `BeginDragEvent`, `EndDragEvent`, and `DropEvent(source, target)`.
-- **Caution:** `DropTarget.IsDroppable` defaults to `false`. Set it to `true`, or drops are ignored.
-
-### Localization (`Scripts/Localizables`)
-- `LocalizationManager.Initialize(language, IList<LocalData>)` loads string tables. `LocalData` is `{ Key, Values: Language→string }`, JSON via `LanguageDictionarySerializer`.
-- The `Language` enum uses ISO-639-style codes: Zh_Tw, Zh_Cn, En, Ja, Pt, Es, Fr, De, Ko, Ru, Ar.
-- `GetLocalKey(key)` returns a cached `LocalKey`. `LocalKey.Value` lazily resolves the string through `App.Instance.LocalizationManager` and caches it until the language changes, which marks all keys dirty. A missing key returns `LOCAL_KEY_NOT_FOUND: <key>`.
-- `LocalStringUpdater` binds a uGUI `Text` to a key and refreshes on `LocaleChangedEvent`.
-- `LocalKeyDrawer` (editor) draws the key string in the inspector.
-- `App` creates an empty manager; the host loads data once with `App.Instance.LocalizationManager.Initialize(language, datas)` (check `Initialized` first, since App outlives scenes). `Initialize` raises `LocaleChangedEvent`, so `LocalStringUpdater`s enabled earlier refresh. Setting `CurrentLanguage` raises `LocaleChangedEvent`, and bound `LocalStringUpdater`s refresh.
-
-### Object pool (`Scripts/ObjectPools`)
-- `ObjectPool` is a MonoBehaviour configured in the inspector: `prefab`, `initialSize`, `growSize` (at least 1), `maxGrowTime`.
-- It prewarms in `Awake`. `Acquire(parent)` / `Acquire<T>(parent)` activates and returns an instance, growing by `growSize` up to `maxGrowTime` times. It returns `null` once exhausted.
-- `Release(go)` / `Release<T>(comp)` deactivates the instance and reparents it to the pool.
-- In the editor, the internal `ObjectPoolRecord` tags each instance with its owning pool to catch foreign releases.
-
-### Scenes (`Scripts/Scenes`)
-- `App.Instance.SceneController.LoadSceneAsync(SceneInfo)` runs a coroutine on App:
-  1. Calls `OnSceneUnloaded()` on the current `IScene`.
-  2. Loads the new scene (single mode).
-  3. Finds the first **root** GameObject that has an `IScene` component and calls `OnSceneLoaded()`.
-- An `IScene` on a root object is optional. If no root object has one, the callbacks are skipped.
-
-### UI framework (`Scripts/UiUtilities`)
-- `UiManager` is a scene-placed MonoBehaviour with a static `Instance` (not `Singleton<T>`). It needs a `uiRoot`. It registers controllers by name:
-  - `CreateUi`, `CreateAndShowUi`, `ShowUi`, `HideUi(name, cb, destroy)`.
-  - `CreateEffect<T>(prefab)` instantiates the prefab under `uiRoot`.
-- `UiBaseController<TView>` + `UiBaseView` form an MVC-ish pair:
-  - The controller implements `IDisplyable` (Show/Hide/Demolish) and owns an `EventSourcing` that it injects into the view.
-  - The view raises UI events and the controller subscribes to them.
-  - Override hooks: `OnＡwaked` (note: **full-width `Ａ`** in the identifier), `OnDestroied`, `RegisterEvents`, `UnregisterEvents`, `InitializeView`.
-  - If an `Animator` is assigned, the controller sets its `"Show"` bool.
-- `ButtonHelper` wraps a `Button` and provides `SetOnClickedCallback`, `SetText`, and `SetColor`. `ButtonExtension.SetColor` does the same as an extension method.
-- `IButtonProcessingHandler` / `IButtonProcessingExternalHandler` provide a "processing" flag (`BeginProcessing`/`EndProcessing`) intended to block double-clicks. The flag is not enforced anywhere yet.
-
-### Colliders (`Scripts/Colliders`)
-- Wrapper components turn Unity physics messages into `EventSourcing` events. Call `wrapper.Initialize(eventSourcing)` first, and optionally set `Filter`.
-- There are 2D and 3D, Collision and Trigger variants:
-  - `*WrapperLight` raises Enter and Exit only.
-  - `*WrapperFull` adds Stay. Stay fires every physics frame, so use it only when needed.
-- Events: `{Collision|Trigger}{2D|3D}{Enter|Stay|Exit}Event`, which carry `Other` (a `Collision` or `Collider`).
-- Filters: `IColliderFilter2D` / `IColliderFilter3D`, with `TagFilter*` (tag list) and `NameFilter*` implementations.
-- Wrappers `[RequireComponent]` a Rigidbody and a Collider, and validate in the editor that the collider is enabled.
-
-### Resources (`Scripts/ResourceSystems`)
-- `AssetBundleLoader` (static) loads and caches bundles from `StreamingAssets` by name or `AssetBundleInfo`. `UnloadAssetBundle` unloads a bundle.
-- `LoadResource<T>` and `LoadEffectResource<T>` use **hard-coded, game-specific asset paths** (`Assets/Prefabs/UI/…`, `Assets/Atlas/boostV001effect/…`). Treat them as legacy code. They return `null` if the asset is missing.
-
-### Persistence (`Scripts/Persistance/Sqlite`, spelled this way in the repo)
-- `DataService(dbName)` copies `StreamingAssets/<db>` to `persistentDataPath` on first run (using a blocking `UnityWebRequest` for `://` paths such as Android) and opens a `SQLiteConnection`. It is a stub: there are no query methods yet, and the connection is private. It lives in the global namespace.
-
-### Utilities (`Scripts/Utilities`)
-- `Range`: an integer range that can be enumerated with `foreach`. Factories: `CreateCloseRange` (the default), `CreateOpenRange`, `CreateOpenCloseRange`, and `CreateCloseOpenRange`. The `End` field is stored as an exclusive bound.
-- `RandomHelper`: `Next(a, b)` takes the bounds in either order. `Take(list, n)` samples without replacement using a partial Fisher–Yates shuffle.
-- `FPS`: a rolling 100-frame average with a colour-coded editor OnGUI overlay.
-- `GameObjectExtends.Append(prefab)` instantiates under a parent. `AppendComponent<T>` adds a component. `IsTagged(TagInfo)` is available on GameObject and Component.
-- `ReadOnlyAttribute`: shows a serialized field greyed out in the inspector.
-
-### Validators (`Scripts/Validators`, `Editor/Validators`)
-- Mark required references with `[NotNull]`.
-- The menu item **Camus › Validate All Null or Missing Reference** checks every enabled build scene and every prefab under `Assets/` for `[NotNull]` fields that are null and for missing object references (the "Missing" case where the instance ID is non-zero but the object is gone). It throws if any check fails.
-- The check also runs automatically before every player build (`IPreprocessBuildWithReport`), and a failure raises `BuildFailedException`.
-- Before checking, it asks you to save modified scenes. It also reports missing scripts and `[NotNull]` fields declared in base classes. When it finishes, it restores your open scenes.
-- `PostBuild.Replace`: an unsafe, unused method-body swizzling hack. Don't use it.
-
-### Editor tooling (`Editor/`, `Scripts/EditorHelpers`)
-- **Camus › Binder Editor Window** (`BinderEditorWindow`) generates `<folder>/ProjectInfo.cs`. Each section is a nested static class of typed constants:
-  - `SceneInfos`: build scenes
-  - `TagInfos`: tags
-  - `LayerInfos`: layers
-  - `SortingLayerInfos`: sorting layers
-  - `AssetBundleInfos`: asset bundle names
-- Scene IDs are the build indices of **enabled** scenes. The generated file uses namespace `Company.Product` by default and is written to `Assets/Scripts/` by default. Use it instead of magic strings: `SceneController.LoadSceneAsync(ProjectInfo.SceneInfos.Main)`.
-- `GizmoDrawer` + `GizmoHelper` draw configurable scene gizmos: a collider wireframe or solid, a disc, an icon, and a label with a selected colour. `GizmoDrawerInspector` (based on `BaseInspector`) provides the custom inspector.
-- `SelectableRoot`: a `[SelectionBase]` marker, so a scene click selects the root object.
-- `BaseInspector`: a template custom editor. It draws a read-only script field, then calls `OnDrawInspector()`, and applies changes if that returns true.
-- `BaseEditorWindow`: currently empty.
-- `ScriptableObjectUtility.CreateAsset<T>()`: creates a ScriptableObject asset in the selected folder.
-- Property drawers: `ReadOnlyDrawer` and `LocalKeyDrawer`.
+- [Core](docs/features/core.md) (`Scripts/Core`): `Singleton<T>`, `App`, `Logger`, `Identity<T>` IDs, `Projects/*Info` structs.
+- [Event systems](docs/features/event-systems.md) (`Scripts/EventSystems`): `EventDispatcher` (global, `IDomainEvent`) and `EventSourcing` (local, `IEvent`).
+- [Update management](docs/features/update-management.md) (`Scripts/Updatables`): `IUpdatable` & co. driven by `UpdateManager` instead of `Update()`.
+- [Timers](docs/features/timers.md) (`Scripts/Timers`): `TimerBase` and its six sealed variants.
+- [State machine](docs/features/state-machine.md) (`Scripts/StateMachines`): `StateMachine<TOwner>` with an explicit transition table.
+- [Input](docs/features/input.md) (`Scripts/InputSystems`, namespace `Camus.Inputs`): `InputManager` on the Input System package; press/move/axis events.
+- [Drag and drop](docs/features/drag-and-drop.md) (`Scripts/Draggables`): `DragSource` / `DropTarget` / `DragManager`, merge and drop rules.
+- [Localization](docs/features/localization.md) (`Scripts/Localizables`): `LocalizationManager`, `LocalKey`, `LocalStringUpdater`.
+- [Object pool](docs/features/object-pool.md) (`Scripts/ObjectPools`): `ObjectPool` acquire/release.
+- [Scenes](docs/features/scenes.md) (`Scripts/Scenes`): `SceneController.LoadSceneAsync` and `IScene` callbacks.
+- [UI framework](docs/features/ui-framework.md) (`Scripts/UiUtilities`): `UiManager`, `UiBaseController`/`UiBaseView`, button helpers.
+- [Colliders](docs/features/colliders.md) (`Scripts/Colliders`): Collision/trigger wrappers that raise `EventSourcing` events, filters.
+- [Resources](docs/features/resources.md) (`Scripts/ResourceSystems`): `AssetBundleLoader` (partly legacy, hard-coded paths).
+- [Persistence](docs/features/persistence.md) (`Scripts/Persistance/Sqlite`, spelled this way in the repo): `DataService` SQLite stub.
+- [Utilities](docs/features/utilities.md) (`Scripts/Utilities`): `Range`, `RandomHelper`, `FPS`, GameObject extensions, `ReadOnlyAttribute`.
+- [Validators](docs/features/validators.md) (`Scripts/Validators`, `Editor/Validators`): `[NotNull]` and the missing-reference build validator.
+- [Editor tooling](docs/features/editor-tooling.md) (`Editor/`, `Scripts/EditorHelpers`): Binder window (`ProjectInfo.cs`), gizmos, inspector/editor-window bases.
 
 ## Tests
 
@@ -223,4 +102,4 @@ To extend the app, add another `public partial class App` file in your module ra
 - Wire global singletons through a new `partial class App` file, not by editing other modules' `App` files.
 - Use `EventDispatcher` + `IDomainEvent` for app-wide events, and `EventSourcing` + `IEvent` for component-local events. Always pair Register with Unregister.
 - Mark required serialized references `[NotNull]`, and use `[ReadOnly]` for debug-visible state.
-- Update this file when you add, remove, or significantly change a feature.
+- When you add, remove, or significantly change a feature, update its file in `docs/features/` and the Features index here.
