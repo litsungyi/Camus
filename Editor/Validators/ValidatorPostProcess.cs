@@ -136,8 +136,12 @@ namespace Camus.Validators
         {
             var result = true;
             var serialObject = new SerializedObject(component);
-            var type = component.GetType();
-            var fieldInfos = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            var fieldInfos = new List<FieldInfo>();
+            for (var type = component.GetType(); type != null && type != typeof(MonoBehaviour); type = type.BaseType)
+            {
+                fieldInfos.AddRange(type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            }
+
             foreach (var fieldInfo in fieldInfos)
             {
                 var fieldValue = fieldInfo.GetValue(component);
